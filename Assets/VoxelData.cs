@@ -1,0 +1,35 @@
+using UnityEngine;
+static class VoxelData
+{
+    public static int chunkWidth = 5;
+    public static int chunkHeight = 5;
+    public static Vector3[] voxelVertices = new Vector3[]
+    {
+        new Vector3(0,0,0),//0
+        new Vector3(1,0,0),//1
+        new Vector3(0,1,0),//2
+        new Vector3(1,1,0),//3
+        new Vector3(0,0,1),//4
+        new Vector3(0,1,1),//5
+        new Vector3(1,0,1),//6
+        new Vector3(1,1,1),//7
+    };
+    public static int[,] voxelTriangles = new int[,]
+    {
+        {6,7,4,5 },//front
+        {0,2,1,3 },//back
+        {1,3,6,7 },//right
+        {4,5,0,2 },//left
+        {2,5,3,7 },//top
+        {4,0,6,1 }//bottom
+    };
+    public static Vector3[] faceCheck = new Vector3[]
+    {
+        new Vector3(0,0,1),
+        new Vector3(0,0,-1),
+        new Vector3(1,0,0),
+        new Vector3(-1,0,0),
+        new Vector3(0,1,0),
+        new Vector3(0,-1,0),
+    };
+}
