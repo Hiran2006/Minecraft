@@ -22,7 +22,7 @@ public class Chunk
 
         mesh = new Mesh();
         GameObject obj = new GameObject();
-        obj.transform.parent = this.world.transform;
+        obj.transform.parent = world.transform;
         obj.transform.position = new Vector3(coord.x * VoxelData.chunkWidth, 0, coord.z * VoxelData.chunkWidth);
 
         obj.AddComponent<MeshFilter>().mesh = mesh;
