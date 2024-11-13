@@ -1,8 +1,8 @@
 using UnityEngine;
 static class VoxelData
 {
-    public static int chunkWidth = 5;
-    public static int chunkHeight = 5;
+    public static int chunkWidth = 16;
+    public static int chunkHeight = 20;
     public static Vector3[] voxelVertices = new Vector3[]
     {
         new Vector3(0,0,0),//0
@@ -23,13 +23,13 @@ static class VoxelData
         {2,5,3,7 },//top
         {4,0,6,1 }//bottom
     };
-    public static Vector3[] faceCheck = new Vector3[]
+    public static Vector3Int[] faceCheck = new Vector3Int[]
     {
-        new Vector3(0,0,1),
-        new Vector3(0,0,-1),
-        new Vector3(1,0,0),
-        new Vector3(-1,0,0),
-        new Vector3(0,1,0),
-        new Vector3(0,-1,0),
+        new Vector3Int(0,0,1),
+        new Vector3Int(0,0,-1),
+        new Vector3Int(1,0,0),
+        new Vector3Int(-1,0,0),
+        new Vector3Int(0,1,0),
+        new Vector3Int(0,-1,0),
     };
 }
