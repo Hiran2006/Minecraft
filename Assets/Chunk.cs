@@ -13,10 +13,12 @@ public class Chunk
     int triIndex = 0;
 
     World world;
+    ChunkCoordinate coord;
 
     public Chunk(World world,ChunkCoordinate coord)
     {
         this.world = world;
+        this.coord = coord;
 
         mesh = new Mesh();
         GameObject obj = new GameObject();
@@ -34,6 +36,8 @@ public class Chunk
         mesh.RecalculateNormals();
     }
 
+    Vector3 chunkPosition { get { return new Vector3(coord.x * VoxelData.chunkWidth, 0, coord.z * VoxelData.chunkWidth); } }
+
     void InitBLock()
     {
         for (int x = 0; x < VoxelData.chunkWidth; x++)
@@ -42,7 +46,7 @@ public class Chunk
             {
                 for (int z = 0; z < VoxelData.chunkWidth; z++)
                 {
-                    blockData[x, y, z] = world.generationLogic.GetBlock(new Vector3(x, y, z));
+                    blockData[x, y, z] = world.generationLogic.GetBlock(new Vector3(x + chunkPosition.x, y, z + chunkPosition.z));
                 }
             }
         }
@@ -90,7 +94,7 @@ public class Chunk
     {
         if (pos.x >= 0 && pos.x < VoxelData.chunkWidth && pos.y >= 0 && pos.y < VoxelData.chunkHeight && pos.z >= 0 && pos.z < VoxelData.chunkWidth)
             return blockData[pos.x, pos.y, pos.z]==0;
-        return true;
+        return world.generationLogic.GetBlock(new Vector3(chunkPosition.x + pos.x, pos.y, chunkPosition.z + pos.z)) == 0;
     }
 }
 

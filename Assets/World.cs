@@ -7,12 +7,28 @@ public class World : MonoBehaviour
     public WorldGenerationLogic generationLogic = new();
     private void Start()
     {
-        new Chunk(this,new ChunkCoordinate(0,0));
+        RenderWorld(GetChunkCoord(transform.position));
     }
 
-    void RenderWorld()
+    void RenderWorld(ChunkCoordinate coord)
     {
-        
+        for (int x = coord.x - VoxelData.renderDistance; x < coord.x + VoxelData.renderDistance; x++)
+        {
+            for (int z = coord.z - VoxelData.renderDistance; z < coord.z + VoxelData.renderDistance; z++)
+            {
+                GenerateChunk(new ChunkCoordinate(x, z));
+            }
+        }
+    }
+
+    void GenerateChunk(ChunkCoordinate coord)
+    {
+        new Chunk(this, coord);
+    }
+
+    ChunkCoordinate GetChunkCoord(Vector3 pos)
+    {
+        return new ChunkCoordinate((int)pos.x, (int)pos.z);
     }
 
     public class WorldGenerationLogic
