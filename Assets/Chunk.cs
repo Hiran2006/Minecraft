@@ -2,20 +2,25 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Chunk:MonoBehaviour
+public class Chunk
 {
     Mesh mesh;
     List<Vector3> vertices = new List<Vector3>();
     List<int> triangles = new List<int>();
 
+    byte[,,] blockData = new byte[VoxelData.chunkWidth, VoxelData.chunkHeight, VoxelData.chunkWidth];
 
     int triIndex = 0;
 
-    private void Start()
+    World world;
+
+    public Chunk(World world)
     {
+        this.world = world;
         mesh = new Mesh();
-        gameObject.AddComponent<MeshFilter>().mesh = mesh;
-        gameObject.AddComponent<MeshRenderer>();
+        GameObject obj = new GameObject();
+        obj.AddComponent<MeshFilter>().mesh = mesh;
+        obj.AddComponent<MeshRenderer>().material = world.mat;
         GenerateBlock();
         mesh.vertices = vertices.ToArray();
         mesh.triangles = triangles.ToArray();
@@ -34,6 +39,21 @@ public class Chunk:MonoBehaviour
             }
         }
     }
+
+    void InitBLock()
+    {
+        for (int x = 0; x < VoxelData.chunkWidth; x++)
+        {
+            for (int y = 0; y < VoxelData.chunkHeight; y++)
+            {
+                for (int z = 0; z < VoxelData.chunkWidth; z++)
+                {
+                    blockData[x, y, z] = 0;
+                }
+            }
+        }
+    }
+
     void GenerateVoxel(Vector3 pos)
     {
         for (int f = 0; f < 6; f++)
