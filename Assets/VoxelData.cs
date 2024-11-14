@@ -1,7 +1,9 @@
 using UnityEngine;
+using UnityEngine.Experimental.GlobalIllumination;
 static class VoxelData
 {
     public static int renderDistance = 2;
+    public static int worldSize = 100;
     public static int chunkWidth = 16;
     public static int chunkHeight = 20;
     public static Vector3[] voxelVertices = new Vector3[]

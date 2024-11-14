@@ -14,6 +14,14 @@ public class Chunk
 
     World world;
     ChunkCoordinate coord;
+    GameObject obj;
+    Vector3 chunkPosition;
+
+    public bool isRendered
+    {
+        get { return obj.activeSelf; }
+        set { obj.SetActive(value); }
+    }
 
     public Chunk(World world,ChunkCoordinate coord)
     {
@@ -21,9 +29,10 @@ public class Chunk
         this.coord = coord;
 
         mesh = new Mesh();
-        GameObject obj = new GameObject();
+        obj = new GameObject();
         obj.transform.parent = world.transform;
         obj.transform.position = new Vector3(coord.x * VoxelData.chunkWidth, 0, coord.z * VoxelData.chunkWidth);
+        chunkPosition = new Vector3(coord.x * VoxelData.chunkWidth, 0, coord.z * VoxelData.chunkWidth);
 
         obj.AddComponent<MeshFilter>().mesh = mesh;
         obj.AddComponent<MeshRenderer>().material = world.mat;
@@ -35,8 +44,6 @@ public class Chunk
         mesh.triangles = triangles.ToArray();
         mesh.RecalculateNormals();
     }
-
-    Vector3 chunkPosition { get { return new Vector3(coord.x * VoxelData.chunkWidth, 0, coord.z * VoxelData.chunkWidth); } }
 
     void InitBLock()
     {
@@ -107,5 +114,13 @@ public class ChunkCoordinate
     {
         this.x = x;
         this.z = z;
+    }
+    public static bool IsEqual(ChunkCoordinate a, ChunkCoordinate b)
+    {
+        if(a.x!=b.x || a.z != b.z)
+        {
+            return false;
+        }
+        return true;
     }
 }
