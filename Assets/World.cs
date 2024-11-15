@@ -1,19 +1,25 @@
+using NUnit.Framework;
 using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Threading;
+using UnityEditor.XR;
 using UnityEngine;
 
 public class World : MonoBehaviour
 {
     public Transform player;
     public Material mat;
-    public WorldGenerationLogic generationLogic = new();
+    public BlockType[] blocktypes;
 
+
+    public WorldGenerationLogic generationLogic = new();
     Chunk[,] chunk = new Chunk[VoxelData.worldSize, VoxelData.worldSize];
     List<ChunkCoordinate> activeChunk = new List<ChunkCoordinate>();
     ChunkCoordinate lastChunk;
     private void Start()
     {
-        player.position = new Vector3(VoxelData.worldSize * VoxelData.chunkWidth / 2, VoxelData.chunkHeight, VoxelData.worldSize * VoxelData.chunkWidth / 2);
+        player.position = new Vector3(VoxelData.worldSize * VoxelData.chunkWidth / 2, VoxelData.chunkHeight + 2f, VoxelData.worldSize * VoxelData.chunkWidth / 2);
         lastChunk = GetChunkCoord(player.position);
         RenderAndUnrenderWorld(lastChunk);
     }
@@ -29,13 +35,14 @@ public class World : MonoBehaviour
     }
     void RenderAndUnrenderWorld(ChunkCoordinate coord)
     {
+        List<ChunkCoordinate> renderList = new List<ChunkCoordinate>();
         for (int x = coord.x - VoxelData.renderDistance; x < coord.x + VoxelData.renderDistance; x++)
         {
             for (int z = coord.z - VoxelData.renderDistance; z < coord.z + VoxelData.renderDistance; z++)
             {
                 if (chunk[x, z] == null)
                 {
-                    GenerateChunk(new ChunkCoordinate(x, z));
+                    renderList.Add(new ChunkCoordinate(x, z));
                 }
                 else if (!chunk[x,z].isRendered)
                 {
@@ -55,12 +62,17 @@ public class World : MonoBehaviour
                 activeChunk.RemoveAt(i);
             }
         }
+        StartCoroutine(GenerateChunk(renderList.ToArray()));
     }
 
-    void GenerateChunk(ChunkCoordinate coord)
+    IEnumerator GenerateChunk(ChunkCoordinate[] list)
     {
-        activeChunk.Add(coord);
-        chunk[coord.x, coord.z] = new Chunk(this, coord);
+        foreach(ChunkCoordinate coord in list)
+        {
+            activeChunk.Add(coord);
+            chunk[coord.x, coord.z] = new Chunk(this, coord);
+        }
+        yield return null;
     }
 
     ChunkCoordinate GetChunkCoord(Vector3 pos)
@@ -72,10 +84,45 @@ public class World : MonoBehaviour
     {
         public byte GetBlock(Vector3 pos)
         {
-            float noise = Mathf.PerlinNoise(pos.x * .01f + .1f, pos.z * .01f + .1f) * VoxelData.chunkHeight;
-            if (pos.y < noise)
+            float noise = Mathf.PerlinNoise(pos.x/VoxelData.chunkWidth * .09f + .1f, pos.z/VoxelData.chunkWidth * .09f + .1f) * VoxelData.chunkHeight;
+            if (pos.y < 50 || (pos.y < noise && pos.y < 100))
                 return 1;
             return 0;
+        }
+    }
+
+    [System.Serializable]
+    public class BlockType
+    {
+        public string blockName;
+        public bool isSolid;
+        public byte frontFace;
+        public byte backFace;
+        public byte rightFace;
+        public byte leftFace;
+        public byte topFace;
+        public byte bottomFace;
+
+        public byte GetFaceID(int faceID)
+        {
+            switch (faceID)
+            {
+                case 0:
+                    return frontFace;
+                case 1:
+                    return backFace;
+                case 2:
+                    return rightFace;
+                case 3:
+                    return leftFace;
+                case 4:
+                    return topFace;
+                case 5:
+                    return bottomFace;
+                default:
+                    Debug.Log("No face correspond to faceID " + faceID);
+                    return 0;
+            }
         }
     }
 }

@@ -7,6 +7,7 @@ public class Chunk
     Mesh mesh;
     List<Vector3> vertices = new List<Vector3>();
     List<int> triangles = new List<int>();
+    List<Vector2> uvs = new List<Vector2>();
 
     byte[,,] blockData = new byte[VoxelData.chunkWidth, VoxelData.chunkHeight, VoxelData.chunkWidth];
 
@@ -21,6 +22,11 @@ public class Chunk
     {
         get { return obj.activeSelf; }
         set { obj.SetActive(value); }
+    }
+
+    Vector3 GetPositionVector(int x, int y, int z)
+    {
+        return chunkPosition + new Vector3(x, y, z);
     }
 
     public Chunk(World world,ChunkCoordinate coord)
@@ -42,6 +48,7 @@ public class Chunk
 
         mesh.vertices = vertices.ToArray();
         mesh.triangles = triangles.ToArray();
+        mesh.uv = uvs.ToArray();
         mesh.RecalculateNormals();
     }
 
@@ -75,7 +82,7 @@ public class Chunk
 
     void GenerateVoxel(Vector3Int pos)
     {
-        if (blockData[pos.x, pos.y, pos.z] != 0)
+        if (world.blocktypes[blockData[pos.x, pos.y, pos.z]].isSolid)
         {
             for (int f = 0; f < 6; f++)
             {
@@ -91,17 +98,32 @@ public class Chunk
                     triangles.Add(triIndex + 2);
                     triangles.Add(triIndex + 1);
                     triangles.Add(triIndex + 3);
+                    AddUvs(world.blocktypes[blockData[pos.x,pos.y,pos.z]].GetFaceID(f));
                     triIndex += 4;
                 }
             }
         }
     }
 
+    void AddUvs(int f)
+    {
+        float y = (int)f * VoxelData.blockTextureSize;
+        float x = f - y;
+        y *= VoxelData.blockTextureSize;
+        x *= VoxelData.blockTextureSize;
+        y = 1 - y - VoxelData.blockTextureSize;
+
+        uvs.Add(new Vector2(x, y));
+        uvs.Add(new Vector2(x, y+VoxelData.blockTextureSize));
+        uvs.Add(new Vector2(x+VoxelData.blockTextureSize, 0));
+        uvs.Add(new Vector2(x + VoxelData.blockTextureSize, y + VoxelData.blockTextureSize));
+    }
+
     bool IsFaceToDraw(Vector3Int pos)
     {
         if (pos.x >= 0 && pos.x < VoxelData.chunkWidth && pos.y >= 0 && pos.y < VoxelData.chunkHeight && pos.z >= 0 && pos.z < VoxelData.chunkWidth)
-            return blockData[pos.x, pos.y, pos.z]==0;
-        return world.generationLogic.GetBlock(new Vector3(chunkPosition.x + pos.x, pos.y, chunkPosition.z + pos.z)) == 0;
+            return !world.blocktypes[blockData[pos.x, pos.y, pos.z]].isSolid;
+        return !world.blocktypes[world.generationLogic.GetBlock(GetPositionVector(pos.x, pos.y, pos.z))].isSolid;
     }
 }
 
