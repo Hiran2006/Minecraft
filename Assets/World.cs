@@ -1,9 +1,5 @@
-using NUnit.Framework;
-using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Threading;
-using UnityEditor.XR;
 using UnityEngine;
 
 public class World : MonoBehaviour
@@ -51,7 +47,8 @@ public class World : MonoBehaviour
                 }
             }
         }
-        for (int i = 0; i < activeChunk.Count;)
+        int count = activeChunk.Count;
+        for (int i = 0; i < count;)
         {
             int x = activeChunk[i].x;
             int z = activeChunk[i].z;
@@ -60,6 +57,7 @@ public class World : MonoBehaviour
             {
                 chunk[x, z].isRendered = false;
                 activeChunk.RemoveAt(i);
+                count--;
             }
         }
         StartCoroutine(GenerateChunk(renderList.ToArray()));
@@ -80,16 +78,6 @@ public class World : MonoBehaviour
         return new ChunkCoordinate((int)pos.x / VoxelData.chunkWidth, (int)pos.z / VoxelData.chunkWidth);
     }
 
-    public class WorldGenerationLogic
-    {
-        public byte GetBlock(Vector3 pos)
-        {
-            float noise = Mathf.PerlinNoise(pos.x/VoxelData.chunkWidth * .09f + .1f, pos.z/VoxelData.chunkWidth * .09f + .1f) * VoxelData.chunkHeight;
-            if (pos.y < 50 || (pos.y < noise && pos.y < 100))
-                return 1;
-            return 0;
-        }
-    }
 
     [System.Serializable]
     public class BlockType
@@ -124,5 +112,16 @@ public class World : MonoBehaviour
                     return 0;
             }
         }
+    }
+}
+
+public class WorldGenerationLogic
+{
+    public byte GetBlock(Vector3 pos)
+    {
+        float noise = Mathf.PerlinNoise(pos.x / VoxelData.chunkWidth * .09f + .1f, pos.z / VoxelData.chunkWidth * .09f + .1f) * VoxelData.chunkHeight;
+        if (pos.y < 50 || (pos.y < noise && pos.y < 100))
+            return 1;
+        return 0;
     }
 }

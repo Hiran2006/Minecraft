@@ -34,11 +34,13 @@ public class Chunk
         this.world = world;
         this.coord = coord;
 
-        mesh = new Mesh();
-        obj = new GameObject();
-        obj.transform.parent = world.transform;
-        obj.transform.position = new Vector3(coord.x * VoxelData.chunkWidth, 0, coord.z * VoxelData.chunkWidth);
+
         chunkPosition = new Vector3(coord.x * VoxelData.chunkWidth, 0, coord.z * VoxelData.chunkWidth);
+
+        mesh = new Mesh();
+        obj = new GameObject($"Chunk {chunkPosition.x}, {chunkPosition.z}");
+        obj.transform.parent = world.transform;
+        obj.transform.position = chunkPosition;
 
         obj.AddComponent<MeshFilter>().mesh = mesh;
         obj.AddComponent<MeshRenderer>().material = world.mat;
@@ -60,7 +62,7 @@ public class Chunk
             {
                 for (int z = 0; z < VoxelData.chunkWidth; z++)
                 {
-                    blockData[x, y, z] = world.generationLogic.GetBlock(new Vector3(x + chunkPosition.x, y, z + chunkPosition.z));
+                    blockData[x, y, z] = world.generationLogic.GetBlock(GetPositionVector(x,y,z));
                 }
             }
         }
@@ -107,11 +109,9 @@ public class Chunk
 
     void AddUvs(int f)
     {
-        float y = (int)f * VoxelData.blockTextureSize;
-        float x = f - y;
-        y *= VoxelData.blockTextureSize;
-        x *= VoxelData.blockTextureSize;
-        y = 1 - y - VoxelData.blockTextureSize;
+        float x = 0.33333f;
+        float y = 0.666f;
+
 
         uvs.Add(new Vector2(x, y));
         uvs.Add(new Vector2(x, y+VoxelData.blockTextureSize));
