@@ -109,13 +109,15 @@ public class Chunk
 
     void AddUvs(int f)
     {
-        float x = 0.33333f;
-        float y = 0.666f;
-
-
+        float x = f % VoxelData.textureSize;
+        float y = (int)(f * VoxelData.blockTextureSize);
+        x *= VoxelData.blockTextureSize;
+        y *= VoxelData.blockTextureSize;
+        y = 1 - y - VoxelData.blockTextureSize;
+        Debug.Log(VoxelData.blockTextureSize);
         uvs.Add(new Vector2(x, y));
-        uvs.Add(new Vector2(x, y+VoxelData.blockTextureSize));
-        uvs.Add(new Vector2(x+VoxelData.blockTextureSize, 0));
+        uvs.Add(new Vector2(x, y + VoxelData.blockTextureSize));
+        uvs.Add(new Vector2(x + VoxelData.blockTextureSize, y));
         uvs.Add(new Vector2(x + VoxelData.blockTextureSize, y + VoxelData.blockTextureSize));
     }
 

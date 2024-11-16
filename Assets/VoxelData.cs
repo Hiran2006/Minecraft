@@ -1,7 +1,7 @@
 using UnityEngine;
 static class VoxelData
 {
-    public static int renderDistance = 4;
+    public static int renderDistance = 1;
     public static int worldSize = 100;
     public static int chunkWidth = 16;
     public static int chunkHeight = 126;
