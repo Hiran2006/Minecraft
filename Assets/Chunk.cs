@@ -114,7 +114,6 @@ public class Chunk
         x *= VoxelData.blockTextureSize;
         y *= VoxelData.blockTextureSize;
         y = 1 - y - VoxelData.blockTextureSize;
-        Debug.Log(VoxelData.blockTextureSize);
         uvs.Add(new Vector2(x, y));
         uvs.Add(new Vector2(x, y + VoxelData.blockTextureSize));
         uvs.Add(new Vector2(x + VoxelData.blockTextureSize, y));

@@ -1,20 +1,25 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 public class World : MonoBehaviour
 {
     public Transform player;
+    public BiomData biomData;
     public Material mat;
     public BlockType[] blocktypes;
 
 
-    public WorldGenerationLogic generationLogic = new();
+    public WorldGenerationLogic generationLogic;
     Chunk[,] chunk = new Chunk[VoxelData.worldSize, VoxelData.worldSize];
     List<ChunkCoordinate> activeChunk = new List<ChunkCoordinate>();
     ChunkCoordinate lastChunk;
     private void Start()
     {
+        generationLogic = new WorldGenerationLogic(biomData);
+
         player.position = new Vector3(VoxelData.worldSize * VoxelData.chunkWidth / 2, VoxelData.chunkHeight + 2f, VoxelData.worldSize * VoxelData.chunkWidth / 2);
         lastChunk = GetChunkCoord(player.position);
         RenderAndUnrenderWorld(lastChunk);
@@ -117,11 +122,31 @@ public class World : MonoBehaviour
 
 public class WorldGenerationLogic
 {
+    BiomData BiomData;
+    public WorldGenerationLogic(BiomData biom)
+    {
+        this.BiomData= biom;
+    }
     public byte GetBlock(Vector3 pos)
     {
-        float noise = Mathf.PerlinNoise(pos.x / VoxelData.chunkWidth * .09f + .1f, pos.z / VoxelData.chunkWidth * .09f + .1f) * VoxelData.chunkHeight;
-        if (pos.y < 50 || (pos.y < noise && pos.y < 100))
+        float blockHeight = Mathf.PerlinNoise(pos.x / VoxelData.chunkWidth * .09f + .1f, pos.z / VoxelData.chunkWidth * .09f + .1f) * (BiomData.maxHeight-BiomData.minHeight);
+        if (pos.y < blockHeight + BiomData.minHeight && !IsCave(pos, 3.1f))
             return 1;
         return 0;
+    }
+    bool IsCave(Vector3 pos,float scale)
+    {
+        float xCoord = pos.x / VoxelData.chunkWidth * scale;
+        float yCoord = pos.y / VoxelData.chunkHeight * scale;
+        float zCoord = pos.z / VoxelData.chunkWidth * scale;
+
+        // Combine multiple layers of 2D Perlin Noise to approximate 3D noise
+        float xy = Mathf.PerlinNoise(xCoord, yCoord);
+        float xz = Mathf.PerlinNoise(xCoord, zCoord);
+        float yz = Mathf.PerlinNoise(yCoord, zCoord);
+
+        float noise = (xy + xz + yz) / 3;
+        if (BiomData.caveTreshold < noise) return true;
+        return false;
     }
 }

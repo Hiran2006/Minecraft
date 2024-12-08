@@ -164,6 +164,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   player: {fileID: 640714531}
+  biomData: {fileID: 11400000, guid: ce03885902c9af944b7b8ce926528624, type: 2}
   mat: {fileID: 2100000, guid: c469c8656934e244b81eab407fbb6880, type: 2}
   blocktypes:
   - blockName: air
