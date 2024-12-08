@@ -1,8 +1,6 @@
-using System.Collections;
 using System.Collections.Generic;
-using Unity.VisualScripting;
+using System.Threading;
 using UnityEngine;
-using UnityEngine.UIElements;
 
 public class World : MonoBehaviour
 {
@@ -36,14 +34,17 @@ public class World : MonoBehaviour
     }
     void RenderAndUnrenderWorld(ChunkCoordinate coord)
     {
-        List<ChunkCoordinate> renderList = new List<ChunkCoordinate>();
+        List<Chunk> renderList = new List<Chunk>();
         for (int x = coord.x - VoxelData.renderDistance; x < coord.x + VoxelData.renderDistance; x++)
         {
             for (int z = coord.z - VoxelData.renderDistance; z < coord.z + VoxelData.renderDistance; z++)
             {
                 if (chunk[x, z] == null)
                 {
-                    renderList.Add(new ChunkCoordinate(x, z));
+                    ChunkCoordinate c = new ChunkCoordinate(x, z);
+                    chunk[x, z] = new Chunk(this, c);
+                    activeChunk.Add(c);
+                    renderList.Add(chunk[x,z]);
                 }
                 else if (!chunk[x,z].isRendered)
                 {
@@ -65,17 +66,15 @@ public class World : MonoBehaviour
                 count--;
             }
         }
-        StartCoroutine(GenerateChunk(renderList.ToArray()));
+        GenerateChunkMesh(renderList.ToArray());
     }
 
-    IEnumerator GenerateChunk(ChunkCoordinate[] list)
+    void GenerateChunkMesh(Chunk[] list)
     {
-        foreach(ChunkCoordinate coord in list)
+        foreach(Chunk chunk in list)
         {
-            activeChunk.Add(coord);
-            chunk[coord.x, coord.z] = new Chunk(this, coord);
+            chunk.GenerateMesh();
         }
-        yield return null;
     }
 
     ChunkCoordinate GetChunkCoord(Vector3 pos)

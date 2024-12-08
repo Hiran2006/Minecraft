@@ -46,6 +46,9 @@ public class Chunk
         obj.AddComponent<MeshRenderer>().material = world.mat;
 
         InitBLock();
+    }
+    public void GenerateMesh()
+    {
         GenerateBlock();
 
         mesh.vertices = vertices.ToArray();
