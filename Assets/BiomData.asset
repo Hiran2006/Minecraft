@@ -14,4 +14,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   minHeight: 50
   maxHeight: 100
-  caveTreshold: 0.404
+  caveTreshold: 0.6

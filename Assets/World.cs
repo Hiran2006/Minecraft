@@ -129,22 +129,24 @@ public class WorldGenerationLogic
     public byte GetBlock(Vector3 pos)
     {
         float blockHeight = Mathf.PerlinNoise(pos.x / VoxelData.chunkWidth * .09f + .1f, pos.z / VoxelData.chunkWidth * .09f + .1f) * (BiomData.maxHeight-BiomData.minHeight);
-        if (pos.y < blockHeight + BiomData.minHeight && !IsCave(pos, 3.1f))
+        if (pos.y < blockHeight + BiomData.minHeight && !IsCave(pos, 15.1f))
             return 1;
         return 0;
     }
     bool IsCave(Vector3 pos,float scale)
     {
-        float xCoord = pos.x / VoxelData.chunkWidth * scale;
-        float yCoord = pos.y / VoxelData.chunkHeight * scale;
-        float zCoord = pos.z / VoxelData.chunkWidth * scale;
+        float x = pos.x / scale;
+        float y = pos.y / scale;
+        float z = pos.z / scale;
+        float xy = Mathf.PerlinNoise(x, y);
+        float xz = Mathf.PerlinNoise(x, z);
+        float yz = Mathf.PerlinNoise(y, z);
+        float yx = Mathf.PerlinNoise(y, x);
+        float zx = Mathf.PerlinNoise(z, x);
+        float zy = Mathf.PerlinNoise(z, y);
 
-        // Combine multiple layers of 2D Perlin Noise to approximate 3D noise
-        float xy = Mathf.PerlinNoise(xCoord, yCoord);
-        float xz = Mathf.PerlinNoise(xCoord, zCoord);
-        float yz = Mathf.PerlinNoise(yCoord, zCoord);
+        float noise = (xy + xz + yz + yx + zx + zy) / 6;
 
-        float noise = (xy + xz + yz) / 3;
         if (BiomData.caveTreshold < noise) return true;
         return false;
     }
