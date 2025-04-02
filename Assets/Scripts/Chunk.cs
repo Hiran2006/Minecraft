@@ -9,7 +9,7 @@ public class Chunk
 
     Mesh mesh;
 
-    byte[,,] blockData = new byte[WorldDate.chunkWidth, WorldDate.chunkHeight, WorldDate.chunkWidth];
+    public byte[,,] blockData = new byte[WorldDate.chunkWidth, WorldDate.chunkHeight, WorldDate.chunkWidth];
 
     List<Vector3> vertices = new List<Vector3>();
     List<int> triangles = new List<int>();
@@ -115,7 +115,7 @@ public class Chunk
         int lX = (int)lookPos.x;
         int lY = (int)lookPos.y;
         int lZ = (int)lookPos.z;
-        if (blockData[x, y, z] != 0)
+        if (world.blockType[blockData[x, y, z]].isSolid)
         {
             if (lX >= 0 && lX < WorldDate.chunkWidth && lY >= 0 && lY < WorldDate.chunkHeight && lZ >= 0 && lZ < WorldDate.chunkWidth)
             {
@@ -127,7 +127,7 @@ public class Chunk
             else
             {
                 byte voxel = world.GetVoxelData(GetWorldPos(lX, lY, lZ));
-                if (voxel == 0)
+                if (!world.blockType[voxel].isSolid)
                 {
                     return true;
                 }

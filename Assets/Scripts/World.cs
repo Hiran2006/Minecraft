@@ -14,7 +14,7 @@ public class World : MonoBehaviour
 
     private void Start()
     {
-        player.position = (Vector3.right + Vector3.forward) * WorldDate.worldWidth * .5f;
+        player.position = WorldDate.worldWidth * .5f * (Vector3.right + Vector3.forward) + 90* Vector3.up;
         player.gameObject.SetActive(false);
         InitialRender();
         player.gameObject.SetActive(true);
@@ -32,7 +32,22 @@ public class World : MonoBehaviour
         }
     }
 
-    ChunkCoordinate GetChunkCoord(Vector3 pos)
+    public byte GetBlock(Vector3 block)
+    {
+        int x = (int)block.x;
+        int y = (int)block.y;
+        int z = (int)block.z;
+        int bX = x % WorldDate.chunkWidth;
+        int bY = y % WorldDate.chunkHeight;
+        int bZ = z % WorldDate.chunkWidth;
+
+        ChunkCoordinate coord = GetChunkCoord(block);
+
+        return chunkData[coord.x, coord.z].blockData[bX, bY, bZ];
+
+    }
+
+    public ChunkCoordinate GetChunkCoord(Vector3 pos)
     {
         int x = (int)(pos.x / WorldDate.chunkWidth);
         int z = (int)(pos.z / WorldDate.chunkWidth);
@@ -50,14 +65,11 @@ public class World : MonoBehaviour
         int y = (int)pos.y;
         int z = (int)pos.z;
         float noise = Mathf.PerlinNoise((x + .1f) * .009f, (z + .1f) * .009f);
-        int height = (int)(noise * WorldDate.chunkHeight);
-        if (y > height)
+        if(y < noise * WorldDate.chunkHeight)
         {
-            return 0;
-        }
-        else if (y > height - 3)
             return 2;
-        return 1;
+        }
+        return 0;
     }
 }
 
@@ -66,7 +78,7 @@ public class World : MonoBehaviour
 public class BlockType
 {
     [SerializeField] string name;
-    [SerializeField] bool isSolid = true;
+    public bool isSolid = true;
 
     [SerializeField] byte frontFace;
     [SerializeField] byte backFace;
