@@ -4,6 +4,9 @@ using System;
 
 public class World : MonoBehaviour
 {
+    public int seed;
+    public BiomeAttributes biome;
+
     public Transform player;
     public Vector3 spawnPosition;
     public Material material;
@@ -28,7 +31,6 @@ public class World : MonoBehaviour
         playerChunkCoord = GetChunkCoordFromVector3(player.position);
         if (playerLastChunkCoord != playerChunkCoord)
         {
-            Debug.Log(activeChunk.Count);
             CheckViewDistance();
             playerLastChunkCoord = playerChunkCoord;
         }
@@ -60,8 +62,8 @@ public class World : MonoBehaviour
         for (int i = 0; i < activeChunk.Count; i++)
         {
             ChunkCoord c = activeChunk[i];
-            if (c.x < coord.x - VoxelData.ViewDistanceInChunks || c.x > coord.x + VoxelData.ViewDistanceInChunks - 1
-                || c.z < coord.z - VoxelData.ViewDistanceInChunks || c.z > coord.z + VoxelData.ViewDistanceInChunks - 1)
+            if (c.x < coord.x - VoxelData.ViewDistanceInChunks || c.x > coord.x + VoxelData.ViewDistanceInChunks
+                || c.z < coord.z - VoxelData.ViewDistanceInChunks || c.z > coord.z + VoxelData.ViewDistanceInChunks)
             {
 
                 chunks[c.x, c.z].isActive = false;
@@ -70,9 +72,9 @@ public class World : MonoBehaviour
             }
         }
 
-        for (int x = coord.x - VoxelData.ViewDistanceInChunks; x < coord.x + VoxelData.ViewDistanceInChunks; x++) 
+        for (int x = coord.x - VoxelData.ViewDistanceInChunks; x <= coord.x + VoxelData.ViewDistanceInChunks; x++) 
         {
-            for (int z = coord.z - VoxelData.ViewDistanceInChunks; z < coord.z + VoxelData.ViewDistanceInChunks; z++) 
+            for (int z = coord.z - VoxelData.ViewDistanceInChunks; z <= coord.z + VoxelData.ViewDistanceInChunks; z++) 
             {
                 if (IsChunkInWorld(new ChunkCoord(x, z)))
                 {
@@ -87,16 +89,37 @@ public class World : MonoBehaviour
             }
         }
     }
-    public short GetVoxel(Vector3 pos)
+    public ushort GetVoxel(Vector3 pos)
     {
+        int yPos = Mathf.FloorToInt(pos.y);
         if (!IsVoxelInWorld(pos))
             return 0;
-        if (pos.y < 1)
+
+        if (yPos == 0)
             return 1;
-        else if (pos.y == VoxelData.ChunkHeight - 1)
-            return 3;
-        else
-            return 2;
+
+        // Basic Terrain Generation
+        int terrainHeight = Mathf.FloorToInt(Noise.Get2DPerlin(new Vector2(pos.x, pos.z), 0, biome.terrainScale) * (biome.terrainHeight - biome.solidGroundHeight));
+        ushort voxelValue = 0;
+
+        terrainHeight += biome.solidGroundHeight;
+        if (yPos == terrainHeight)
+            voxelValue = 2;
+        else if (yPos < terrainHeight && yPos > terrainHeight - 3)
+            voxelValue = 3;
+        else if (yPos < terrainHeight)
+            voxelValue = 4;
+        if(voxelValue == 4  )
+        {
+            foreach(var lode in biome.lodes)
+            {
+                if (yPos > lode.minHeight && yPos < lode.maxHeight)
+                    if (Noise.Get3DPerlin(pos, lode.noiseOffset, lode.scale, lode.threshold))
+                        voxelValue = lode.blockID;
+            }
+        }
+        return voxelValue;
+
     }
 
     void CreateNewChunk(int x,int z)
@@ -107,7 +130,7 @@ public class World : MonoBehaviour
 
     bool IsChunkInWorld(ChunkCoord coord)
     {
-        return (coord.x > 0 && coord.x < VoxelData.WorldSizeInChunks - 1 && coord.z > 0 && coord.z < VoxelData.WorldSizeInChunks - 1);
+        return (coord.x >= 0 && coord.x < VoxelData.WorldSizeInChunks && coord.z >= 0 && coord.z < VoxelData.WorldSizeInChunks);
     }
     bool IsVoxelInWorld(Vector3 pos)
     {
@@ -121,12 +144,12 @@ public class BlockType
     public string name;
     public bool isSolid;
     [Header("Texture values")]
-    [SerializeField] int frontFaceTexture;
-    [SerializeField] int backFaceTexture;
-    [SerializeField] int rightFaceTexture;
-    [SerializeField] int leftFaceTexture; 
-    [SerializeField] int topFaceTexture; 
-    [SerializeField] int bottomFaceTexture;
+    [SerializeField] ushort frontFaceTexture;
+    [SerializeField] ushort backFaceTexture;
+    [SerializeField] ushort rightFaceTexture;
+    [SerializeField] ushort leftFaceTexture; 
+    [SerializeField] ushort topFaceTexture; 
+    [SerializeField] ushort bottomFaceTexture;
 
     public int GetTextureID(int faceIndex)
     {

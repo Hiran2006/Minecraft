@@ -16,7 +16,7 @@ public class Chunk
     List<int> triangles = new List<int>();
     List<Vector2> uvs = new List<Vector2>();
 
-    short[,,] voxelMap = new short[VoxelData.ChunkWidth, VoxelData.ChunkHeight, VoxelData.ChunkWidth];
+    ushort[,,] voxelMap = new ushort[VoxelData.ChunkWidth, VoxelData.ChunkHeight, VoxelData.ChunkWidth];
 
     public Chunk(ChunkCoord coord,World world)
     {
@@ -58,7 +58,8 @@ public class Chunk
             {
                 for (int z = 0; z < VoxelData.ChunkWidth; z++)
                 {
-                    AddVoxelDataToChunk(new Vector3Int(x, y, z));
+                    if (world.blockTypes[voxelMap[x, y, z]].isSolid)
+                        AddVoxelDataToChunk(new Vector3Int(x, y, z));
                 }
             }
         }
@@ -98,7 +99,7 @@ public class Chunk
         {
             if (!CheckVoxel(pos + VoxelData.faceCheck[f]))
             {
-                short blockID = voxelMap[pos.x, pos.y, pos.z];
+                ushort blockID = voxelMap[pos.x, pos.y, pos.z];
                 for (int p = 0; p < 4; p++)
                 {
                     vertices.Add(pos + VoxelData.voxelVerts[VoxelData.voxelTris[f, p]]);
