@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
 
 public class Chunk : MonoBehaviour
@@ -29,7 +28,7 @@ public class Chunk : MonoBehaviour
             {
                 for (int z = 0; z < VoxelData.ChunkWidth; z++)
                 {
-                    voxelMap[x, y, z] = 0;
+                    voxelMap[x, y, z] = 1;
                 }
             }
         }
@@ -43,7 +42,7 @@ public class Chunk : MonoBehaviour
             {
                 for (int z = 0; z < VoxelData.ChunkWidth; z++)
                 {
-                    AddVoxelDataToChunk(new Vector3(x, y, z));
+                    AddVoxelDataToChunk(new Vector3Int(x, y, z));
                 }
             }
         }
@@ -61,18 +60,19 @@ public class Chunk : MonoBehaviour
         return world.blockTypes[voxelMap[x, y, z]].isSolid;
     }
 
-    void AddVoxelDataToChunk(Vector3 pos)
+    void AddVoxelDataToChunk(Vector3Int pos)
     {
         for(int f = 0; f < 6; f++)
         {
             if (!CheckVoxel(pos + VoxelData.faceCheck[f]))
             {
+                byte blockID = voxelMap[pos.x, pos.y, pos.z];
                 for (int p = 0; p < 4; p++)
                 {
                     vertices.Add(pos + VoxelData.voxelVerts[VoxelData.voxelTris[f, p]]);
                 }
 
-                AddTexture(0);
+                AddTexture(world.blockTypes[blockID].GetTextureID(f));
 
                 triangles.Add(vertexIndex);
                 triangles.Add(vertexIndex+1);
