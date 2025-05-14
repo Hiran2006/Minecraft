@@ -157,7 +157,7 @@ public class ChunkCoord
 
     public static bool operator ==(ChunkCoord l,ChunkCoord r)
     {
-        return !(l.x!=r.x || l.z!=r.z);
+        return l.x == r.x && l.z == r.z;
     }
     public static bool operator !=(ChunkCoord l, ChunkCoord r)
     {
@@ -167,8 +167,6 @@ public class ChunkCoord
     {
         return true;
     }
-
-
     public override int GetHashCode()
     {
         return 0;

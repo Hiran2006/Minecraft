@@ -19,15 +19,18 @@ public class World : MonoBehaviour
     {
         spawnPosition = new Vector3(VoxelData.WorldSizeInBlocks * .5f, VoxelData.ChunkHeight, VoxelData.WorldSizeInBlocks * .5f);
         GenerateWorld();
+        player.transform.position = spawnPosition;
         playerLastChunkCoord = GetChunkCoordFromVector3(spawnPosition);
     }
 
     private void Update()
     {
-        playerChunkCoord = GetChunkCoordFromVector3(transform.position);
+        playerChunkCoord = GetChunkCoordFromVector3(player.position);
         if (playerLastChunkCoord != playerChunkCoord)
         {
+            Debug.Log(activeChunk.Count);
             CheckViewDistance();
+            playerLastChunkCoord = playerChunkCoord;
         }
     }
 
@@ -40,7 +43,6 @@ public class World : MonoBehaviour
                 CreateNewChunk(x, z);
             }
         }
-        player.transform.position = spawnPosition;
     }
 
     ChunkCoord GetChunkCoordFromVector3(Vector3 pos)
@@ -55,11 +57,22 @@ public class World : MonoBehaviour
     {
         ChunkCoord coord = GetChunkCoordFromVector3(player.position);
 
-        List<ChunkCoord> previoslyActiveChunk = new List<ChunkCoord>(activeChunk);
-
-        for (int x = coord.x - VoxelData.ViewDistanceInChunks; x < coord.x + VoxelData.ViewDistanceInChunks; x++)
+        for (int i = 0; i < activeChunk.Count; i++)
         {
-            for (int z = coord.z - VoxelData.ViewDistanceInChunks; z < coord.z + VoxelData.ViewDistanceInChunks; z++)
+            ChunkCoord c = activeChunk[i];
+            if (c.x < coord.x - VoxelData.ViewDistanceInChunks || c.x > coord.x + VoxelData.ViewDistanceInChunks - 1
+                || c.z < coord.z - VoxelData.ViewDistanceInChunks || c.z > coord.z + VoxelData.ViewDistanceInChunks - 1)
+            {
+
+                chunks[c.x, c.z].isActive = false;
+                activeChunk.RemoveAt(i);
+                i--;
+            }
+        }
+
+        for (int x = coord.x - VoxelData.ViewDistanceInChunks; x < coord.x + VoxelData.ViewDistanceInChunks; x++) 
+        {
+            for (int z = coord.z - VoxelData.ViewDistanceInChunks; z < coord.z + VoxelData.ViewDistanceInChunks; z++) 
             {
                 if (IsChunkInWorld(new ChunkCoord(x, z)))
                 {
@@ -71,23 +84,8 @@ public class World : MonoBehaviour
                         activeChunk.Add(new ChunkCoord(x, z));
                     }
                 }
-
-                for(int i = 0; i < previoslyActiveChunk.Count; i++)
-                {
-                    if (previoslyActiveChunk[i]==new ChunkCoord(x, z))
-                    {
-                        previoslyActiveChunk.RemoveAt(i);
-                        break;
-                    }
-                }
             }
         }
-
-        foreach (var c in previoslyActiveChunk)
-        {
-            chunks[c.x, c.z].isActive = false;
-        }
-        
     }
     public short GetVoxel(Vector3 pos)
     {
