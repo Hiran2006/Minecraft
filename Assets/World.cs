@@ -3,6 +3,8 @@ using System;
 
 public class World : MonoBehaviour
 {
+    public Transform player;
+    public Vector3 spawnPosition;
     public Material material;
     public BlockType[] blockTypes;
 
@@ -10,20 +12,51 @@ public class World : MonoBehaviour
 
     private void Start()
     {
+        spawnPosition = new Vector3(VoxelData.WorldSizeInBlocks * .5f, VoxelData.ChunkHeight, VoxelData.WorldSizeInBlocks * .5f);
         GenerateWorld();
+    }
+
+    private void Update()
+    {
+        CheckViewDistance();
     }
 
     void GenerateWorld()
     {
-        for (int x = 0; x < VoxelData.WorldSizeInChunks; x++)
+        for (int x = VoxelData.WorldSizeInChunks / 2 - VoxelData.ViewDistanceInChunks; x < VoxelData.WorldSizeInChunks / 2 + VoxelData.ViewDistanceInChunks; x++)
         {
-            for (int z = 0; z < VoxelData.WorldSizeInChunks; z++)
+            for (int z = VoxelData.WorldSizeInChunks / 2 - VoxelData.ViewDistanceInChunks; z < VoxelData.WorldSizeInChunks / 2 + VoxelData.ViewDistanceInChunks; z++)
             {
                 CreateNewChunk(x, z);
             }
         }
+        player.transform.position = spawnPosition;
     }
 
+    ChunkCoord GetChunkCoordFromVector3(Vector3 pos)
+    {
+        int x = Mathf.FloorToInt(pos.x / VoxelData.ChunkWidth);
+        int z = Mathf.FloorToInt(pos.z / VoxelData.ChunkWidth);
+
+        return new ChunkCoord(x, z);
+    }
+
+    void CheckViewDistance()
+    {
+        ChunkCoord coord = GetChunkCoordFromVector3(player.position);
+
+        for (int x = coord.x - VoxelData.ViewDistanceInChunks; x < coord.x + VoxelData.ViewDistanceInChunks; x++)
+        {
+            for (int z = coord.z - VoxelData.ViewDistanceInChunks; z < coord.z + VoxelData.ViewDistanceInChunks; z++)
+            {
+                if (IsChunkInWorld(new ChunkCoord(x, z)))
+                {
+                    if (chunks[x, z] == null)
+                        CreateNewChunk(x, z);
+                }
+            }
+        }
+    }
     public short GetVoxel(Vector3 pos)
     {
         if (!IsVoxelInWorld(pos))
