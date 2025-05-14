@@ -1,7 +1,5 @@
 using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
-using UnityEngine.UIElements;
 
 public class Chunk
 {
@@ -139,7 +137,7 @@ public class Chunk
         y *= VoxelData.NormalizedBlockTextureSize;
         y = 1 - y - VoxelData.NormalizedBlockTextureSize;
 
-        for(int i =0; i < 4; i++)
+        for(int i = 0; i < 4; i++)
         {
             uvs.Add(new Vector2(x, y) + VoxelData.voxelUvs[i] * VoxelData.NormalizedBlockTextureSize);
         }

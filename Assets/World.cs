@@ -1,6 +1,5 @@
 using UnityEngine;
 using System;
-using System.Drawing;
 
 public class World : MonoBehaviour
 {
@@ -48,7 +47,7 @@ public class World : MonoBehaviour
     }
     bool IsVoxelInWorld(Vector3 pos)
     {
-        return (pos.x >= 0 && pos.x < VoxelData.WorldSizeInChunks && pos.y >= 0 && pos.y < VoxelData.ChunkHeight && pos.z >= 0 && pos.z < VoxelData.WorldSizeInChunks);
+        return (pos.x >= 0 && pos.x < VoxelData.WorldSizeInBlocks && pos.y >= 0 && pos.y < VoxelData.ChunkHeight && pos.z >= 0 && pos.z < VoxelData.WorldSizeInBlocks);
     }
 }
 [System.Serializable]
