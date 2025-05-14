@@ -1,21 +1,39 @@
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.UIElements;
 
-public class Chunk : MonoBehaviour
+public class Chunk
 {
-    public MeshRenderer renderer;
-    public MeshFilter filter;
-    public World world;
+    public ChunkCoord coord;
+
+    GameObject chunkObject;
+    World world;
+    MeshRenderer renderer;
+    MeshFilter filter;
 
     int vertexIndex = 0;
+
     List<Vector3> vertices = new List<Vector3>();
     List<int> triangles = new List<int>();
     List<Vector2> uvs = new List<Vector2>();
 
-    byte[,,] voxelMap = new byte[VoxelData.ChunkWidth, VoxelData.ChunkHeight, VoxelData.ChunkWidth];
+    short[,,] voxelMap = new short[VoxelData.ChunkWidth, VoxelData.ChunkHeight, VoxelData.ChunkWidth];
 
-    private void Start()
+    public Chunk(ChunkCoord coord,World world)
     {
+        this.coord = coord;
+        this.world = world;
+
+        chunkObject = new GameObject($"Chunk {coord.x}, {coord.z}");
+        chunkObject.transform.SetParent(world.transform);
+        chunkObject.transform.position = new Vector3(coord.x, 0f, coord.z) * VoxelData.ChunkWidth;
+
+        filter = chunkObject.AddComponent<MeshFilter>();
+        renderer = chunkObject.AddComponent<MeshRenderer>();
+
+        renderer.material = world.material;
+
         PopulateVoxelMap();
         UpdateMeshData();
         UpdateMesh();
@@ -28,7 +46,7 @@ public class Chunk : MonoBehaviour
             {
                 for (int z = 0; z < VoxelData.ChunkWidth; z++)
                 {
-                    voxelMap[x, y, z] = 1;
+                    voxelMap[x, y, z] = world.GetVoxel(new Vector3(x, y, z) + position);
                 }
             }
         }
@@ -48,14 +66,30 @@ public class Chunk : MonoBehaviour
         }
     }
 
+    public bool isActive
+    {
+        get { return chunkObject.activeSelf; }
+        set { chunkObject.SetActive(value); }
+    }
+
+    public Vector3 position
+    {
+        get { return chunkObject.transform.position; }
+    }
+
+    bool IsVoxelInChunk(int x,int y,int z)
+    {
+        return !(x < 0 || x > VoxelData.ChunkWidth - 1 || y < 0 || y > VoxelData.ChunkHeight - 1 || z < 0 || z > VoxelData.ChunkWidth - 1);
+    }
+
     bool CheckVoxel(Vector3 pos)
     {
         int x = Mathf.FloorToInt(pos.x);
         int y = Mathf.FloorToInt(pos.y);
         int z = Mathf.FloorToInt(pos.z);
 
-        if (x < 0 || x > VoxelData.ChunkWidth - 1 || y < 0 || y > VoxelData.ChunkHeight - 1 || z < 0 || z > VoxelData.ChunkWidth - 1)
-            return false;
+        if (!IsVoxelInChunk(x, y, z))
+            return world.blockTypes[world.GetVoxel(pos + position)].isSolid;
 
         return world.blockTypes[voxelMap[x, y, z]].isSolid;
     }
@@ -66,7 +100,7 @@ public class Chunk : MonoBehaviour
         {
             if (!CheckVoxel(pos + VoxelData.faceCheck[f]))
             {
-                byte blockID = voxelMap[pos.x, pos.y, pos.z];
+                short blockID = voxelMap[pos.x, pos.y, pos.z];
                 for (int p = 0; p < 4; p++)
                 {
                     vertices.Add(pos + VoxelData.voxelVerts[VoxelData.voxelTris[f, p]]);
@@ -99,7 +133,7 @@ public class Chunk : MonoBehaviour
 
     void AddTexture(int textureID)
     {
-        float y = (int)(textureID / VoxelData.textureAtlasSizeInBlocks);
+        float y = textureID / VoxelData.textureAtlasSizeInBlocks;
         float x = textureID - (y * VoxelData.textureAtlasSizeInBlocks);
         x *= VoxelData.NormalizedBlockTextureSize;
         y *= VoxelData.NormalizedBlockTextureSize;
@@ -110,5 +144,39 @@ public class Chunk : MonoBehaviour
             uvs.Add(new Vector2(x, y) + VoxelData.voxelUvs[i] * VoxelData.NormalizedBlockTextureSize);
         }
     }
+}
 
+public class ChunkCoord
+{
+    public int x;
+    public int z;
+
+    public ChunkCoord(int x, int z)
+    {
+        this.x = x;
+        this.z = z;
+    }
+
+    public static bool operator ==(ChunkCoord l,ChunkCoord r)
+    {
+        return !(l.x!=r.x || l.z!=r.z);
+    }
+    public static bool operator !=(ChunkCoord l, ChunkCoord r)
+    {
+        return !(l == r);
+    }
+    public override bool Equals(object l)
+    {
+        return true;
+    }
+
+
+    public override int GetHashCode()
+    {
+        return 0;
+    }
+    public static bool GetHashCode(ChunkCoord l, ChunkCoord r)
+    {
+        return l == r;
+    }
 }

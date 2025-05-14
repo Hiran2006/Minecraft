@@ -184,7 +184,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 10302, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 2100000, guid: bf127ea23837a9d4d81f01aabfb1fe52, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -439,10 +439,24 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c7944d89c0f6e544493bf3ea77dc1a2a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  material: {fileID: 0}
+  material: {fileID: 2100000, guid: bf127ea23837a9d4d81f01aabfb1fe52, type: 2}
   blockTypes:
   - name: Default
+    isSolid: 0
+    frontFaceTexture: 0
+    backFaceTexture: 0
+    rightFaceTexture: 0
+    leftFaceTexture: 0
+    topFaceTexture: 0
+    bottomFaceTexture: 0
+  - name: Grass
     isSolid: 1
+    frontFaceTexture: 415
+    backFaceTexture: 415
+    rightFaceTexture: 415
+    leftFaceTexture: 415
+    topFaceTexture: 0
+    bottomFaceTexture: 346
 --- !u!4 &1365215936
 Transform:
   m_ObjectHideFlags: 0
