@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 using System;
+using System.Collections;
 
 public class World : MonoBehaviour
 {
@@ -15,8 +16,12 @@ public class World : MonoBehaviour
     Chunk[,] chunks = new Chunk[VoxelData.WorldSizeInChunks,VoxelData.WorldSizeInChunks];
 
     List<ChunkCoord> activeChunk = new List<ChunkCoord>();
-    ChunkCoord playerChunkCoord;
+    ChunkCoord playerCurrentChunkCoord;
     ChunkCoord playerLastChunkCoord;
+
+    Queue<ChunkCoord> chunksToCreate = new Queue<ChunkCoord>();
+
+    bool isCreating = false;
 
     private void Start()
     {
@@ -28,11 +33,11 @@ public class World : MonoBehaviour
 
     private void Update()
     {
-        playerChunkCoord = GetChunkCoordFromVector3(player.position);
-        if (playerLastChunkCoord != playerChunkCoord)
+        playerCurrentChunkCoord = GetChunkCoordFromVector3(player.position);
+        if (playerLastChunkCoord != playerCurrentChunkCoord)
         {
             CheckViewDistance();
-            playerLastChunkCoord = playerChunkCoord;
+            playerLastChunkCoord = playerCurrentChunkCoord;
         }
     }
 
@@ -42,9 +47,23 @@ public class World : MonoBehaviour
         {
             for (int z = VoxelData.WorldSizeInChunks / 2 - VoxelData.ViewDistanceInChunks; z < VoxelData.WorldSizeInChunks / 2 + VoxelData.ViewDistanceInChunks; z++)
             {
-                CreateNewChunk(x, z);
+                ChunkCoord c = new ChunkCoord(x, z);
+                chunks[x, z] = new Chunk(c, this, true);
+                activeChunk.Add(c);
             }
         }
+    }
+
+    IEnumerator CreateChunks()
+    {
+        isCreating = true;
+        while (chunksToCreate.Count > 0)
+        {
+            ChunkCoord c = chunksToCreate.Dequeue();
+            chunks[c.x, c.z].Init();
+            yield return null;
+        }
+        isCreating = false;
     }
 
     ChunkCoord GetChunkCoordFromVector3(Vector3 pos)
@@ -78,13 +97,15 @@ public class World : MonoBehaviour
             {
                 if (IsChunkInWorld(new ChunkCoord(x, z)))
                 {
+                    ChunkCoord c= new ChunkCoord(x, z);
+
                     if (chunks[x, z] == null)
-                        CreateNewChunk(x, z);
+                        chunksToCreate.Enqueue(c);
+
                     else if (!chunks[x, z].isActive)
-                    {
                         chunks[x, z].isActive = true;
-                        activeChunk.Add(new ChunkCoord(x, z));
-                    }
+
+                    activeChunk.Add(c);
                 }
             }
         }
@@ -138,11 +159,6 @@ public class World : MonoBehaviour
 
     }
 
-    void CreateNewChunk(int x,int z)
-    {
-        chunks[x, z] = new Chunk(new ChunkCoord(x, z), this);
-        activeChunk.Add(new ChunkCoord(x, z));
-    }
 
     bool IsChunkInWorld(ChunkCoord coord)
     {

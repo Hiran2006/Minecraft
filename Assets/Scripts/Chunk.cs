@@ -18,11 +18,19 @@ public class Chunk
 
     public ushort[,,] voxelMap = new ushort[VoxelData.ChunkWidth, VoxelData.ChunkHeight, VoxelData.ChunkWidth];
 
-    public Chunk(ChunkCoord coord,World world)
+    bool _isActive;
+    public bool isVoxelMapPopulated = false;
+    public Chunk(ChunkCoord coord,World world,bool generateOnLoad)
     {
         this.coord = coord;
         this.world = world;
 
+        if (generateOnLoad)
+            Init();
+    }
+
+    public void Init()
+    {
         chunkObject = new GameObject($"Chunk {coord.x}, {coord.z}");
         chunkObject.transform.SetParent(world.transform);
         chunkObject.transform.position = new Vector3(coord.x, 0f, coord.z) * VoxelData.ChunkWidth;
@@ -36,6 +44,7 @@ public class Chunk
         UpdateMeshData();
         UpdateMesh();
     }
+
     void PopulateVoxelMap()
     {
         for (int y = 0; y < VoxelData.ChunkHeight; y++)
@@ -48,6 +57,7 @@ public class Chunk
                 }
             }
         }
+        isVoxelMapPopulated = true;
     }
 
     void UpdateMeshData()
@@ -67,8 +77,12 @@ public class Chunk
 
     public bool isActive
     {
-        get { return chunkObject.activeSelf; }
-        set { chunkObject.SetActive(value); }
+        get { return _isActive; }
+        set {
+            _isActive = value;
+            if(chunkObject!=null)
+                chunkObject.SetActive(value);
+        }
     }
 
     public Vector3 position
@@ -152,6 +166,18 @@ public class ChunkCoord
 
     public ChunkCoord(int x, int z)
     {
+        this.x = x;
+        this.z = z;
+    }
+
+    public ChunkCoord(Vector3 pos)
+    {
+        int x = Mathf.FloorToInt(pos.x);
+        int z = Mathf.FloorToInt(pos.z);
+
+        x /= VoxelData.ChunkWidth;
+        z /= VoxelData.ChunkWidth;
+
         this.x = x;
         this.z = z;
     }
