@@ -100,7 +100,10 @@ public class World : MonoBehaviour
                     ChunkCoord c= new ChunkCoord(x, z);
 
                     if (chunks[x, z] == null)
+                    {
+                        chunks[x, z] = new Chunk(c, this, false);
                         chunksToCreate.Enqueue(c);
+                    }
 
                     else if (!chunks[x, z].isActive)
                         chunks[x, z].isActive = true;
@@ -111,19 +114,17 @@ public class World : MonoBehaviour
         }
     }
 
-    public bool CheckForVoxel(float _x, float _y, float _z)
+    public bool CheckForVoxel(Vector3 pos)
     {
-        int xCheck = Mathf.FloorToInt(_x);
-        int yCheck = Mathf.FloorToInt(_y);
-        int zCheck = Mathf.FloorToInt(_z);
+        ChunkCoord thisChunk = new ChunkCoord(pos);
 
-        int xChunk = xCheck / VoxelData.ChunkWidth;
-        int zChunk = zCheck / VoxelData.ChunkWidth;
+        if (IsVoxelInWorld(pos))
+            return false;
 
-        xCheck -= xChunk * VoxelData.ChunkWidth;
-        zCheck -= zChunk * VoxelData.ChunkWidth;
+        if (chunks[thisChunk.x, thisChunk.z] != null && chunks[thisChunk.x, thisChunk.z].isVoxelMapPopulated)
+            return blockTypes[chunks[thisChunk.x, thisChunk.z].GetVoxelFromGlobalVector3(pos)].isSolid;
 
-        return blockTypes[chunks[xChunk, zChunk].voxelMap[xCheck, yCheck, zCheck]].isSolid;
+        return blockTypes[GetVoxel(pos)].isSolid;
     }
 
     public ushort GetVoxel(Vector3 pos)

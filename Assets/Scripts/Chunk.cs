@@ -102,10 +102,23 @@ public class Chunk
         int z = Mathf.FloorToInt(pos.z);
 
         if (!IsVoxelInChunk(x, y, z))
-            return world.blockTypes[world.GetVoxel(pos + position)].isSolid;
+            return world.CheckForVoxel(pos);
 
         return world.blockTypes[voxelMap[x, y, z]].isSolid;
     }
+
+    public ushort GetVoxelFromGlobalVector3(Vector3 pos)
+    {
+        int xCheck = Mathf.FloorToInt(pos.x);
+        int yCheck = Mathf.FloorToInt(pos.y);
+        int zCheck = Mathf.FloorToInt(pos.z);
+
+        xCheck -= Mathf.FloorToInt(chunkObject.transform.position.x);
+        zCheck -= Mathf.FloorToInt(chunkObject.transform.position.z);
+
+
+        return voxelMap[xCheck, yCheck, zCheck];
+    } 
 
     void AddVoxelDataToChunk(Vector3Int pos)
     {
@@ -163,6 +176,12 @@ public class ChunkCoord
 {
     public int x;
     public int z;
+
+    public ChunkCoord()
+    {
+        x = 0;
+        z = 0;
+    }
 
     public ChunkCoord(int x, int z)
     {
