@@ -7,7 +7,7 @@ public class World : MonoBehaviour
 {
     public int seed;
     public BiomeAttributes biome;
-
+    public Transform debugScreen;
     public Transform player;
     public Vector3 spawnPosition;
     public Material material;
@@ -16,12 +16,12 @@ public class World : MonoBehaviour
     Chunk[,] chunks = new Chunk[VoxelData.WorldSizeInChunks,VoxelData.WorldSizeInChunks];
 
     List<ChunkCoord> activeChunk = new List<ChunkCoord>();
-    ChunkCoord playerCurrentChunkCoord;
+    public ChunkCoord playerCurrentChunkCoord;
     ChunkCoord playerLastChunkCoord;
 
     Queue<ChunkCoord> chunksToCreate = new Queue<ChunkCoord>();
 
-    bool isCreating = false;
+    bool isChunkCreating = false;
 
     private void Start()
     {
@@ -34,11 +34,18 @@ public class World : MonoBehaviour
     private void Update()
     {
         playerCurrentChunkCoord = GetChunkCoordFromVector3(player.position);
+
         if (playerLastChunkCoord != playerCurrentChunkCoord)
         {
             CheckViewDistance();
             playerLastChunkCoord = playerCurrentChunkCoord;
         }
+
+        if (chunksToCreate.Count > 0 && !isChunkCreating)
+            StartCoroutine("CreateChunks");
+
+        if (Input.GetKeyDown(KeyCode.F3))
+            debugScreen.gameObject.SetActive(!debugScreen.gameObject.activeSelf);
     }
 
     void GenerateWorld()
@@ -56,14 +63,14 @@ public class World : MonoBehaviour
 
     IEnumerator CreateChunks()
     {
-        isCreating = true;
+        isChunkCreating = true;
         while (chunksToCreate.Count > 0)
         {
             ChunkCoord c = chunksToCreate.Dequeue();
             chunks[c.x, c.z].Init();
             yield return null;
         }
-        isCreating = false;
+        isChunkCreating = false;
     }
 
     ChunkCoord GetChunkCoordFromVector3(Vector3 pos)
@@ -118,7 +125,7 @@ public class World : MonoBehaviour
     {
         ChunkCoord thisChunk = new ChunkCoord(pos);
 
-        if (IsVoxelInWorld(pos))
+        if (!IsChunkInWorld(thisChunk) || pos.y < 0 || pos.y > VoxelData.ChunkHeight)
             return false;
 
         if (chunks[thisChunk.x, thisChunk.z] != null && chunks[thisChunk.x, thisChunk.z].isVoxelMapPopulated)
