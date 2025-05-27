@@ -27,7 +27,11 @@ public class Player : MonoBehaviour
     Vector3 velocity;
     float verticalMoment = 0;
 
+    public Transform hightlightBlock;
+    public Transform placeBlock;
 
+    public float checkIncrement = .1f;
+    public float reach = 8f;
 
     InputActionMap actionMap;
 
@@ -90,6 +94,29 @@ public class Player : MonoBehaviour
 
         jumpRequest = actionMap.FindAction("Jump").ReadValue<float>() == 1;
         isSprinting = actionMap.FindAction("Sprint").ReadValue<float>() == 1;
+    }
+
+    void PlaceCursorBlock()
+    {
+        float step = checkIncrement;
+        Vector3 lastPos = new Vector3();
+
+        while (step < reach)
+        {
+            Vector3 pos = cam.position + (cam.forward * step);
+            if (world.CheckForVoxel(pos))
+            {
+                hightlightBlock.position = new Vector3(Mathf.FloorToInt(pos.x), Mathf.FloorToInt(pos.y), Mathf.FloorToInt(pos.z));
+                placeBlock.position = lastPos;
+                hightlightBlock.gameObject.SetActive(true);
+                placeBlock.gameObject.SetActive(true);
+
+                return;
+            }
+            lastPos = new Vector3(Mathf.FloorToInt(pos.x), Mathf.FloorToInt(pos.y), Mathf.FloorToInt(pos.z));
+
+            step += checkIncrement; 
+        }
     }
 
     float CheckDownSpeed(float downSpeed)

@@ -202,7 +202,7 @@ public class ChunkCoord
     }
 
     public static bool operator ==(ChunkCoord l,ChunkCoord r)
-    {
+    {  
         return l.x == r.x && l.z == r.z;
     }
     public static bool operator !=(ChunkCoord l, ChunkCoord r)

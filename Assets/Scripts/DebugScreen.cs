@@ -25,6 +25,5 @@ public class DebugScreen : MonoBehaviour
         debugText += '\n';
         debugText += $"Chunk : {world.playerCurrentChunkCoord.x}, {world.playerCurrentChunkCoord.z}";
         text.text = debugText;
-
     }
 }
