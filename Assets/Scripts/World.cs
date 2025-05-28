@@ -42,7 +42,7 @@ public class World : MonoBehaviour
         }
 
         if (chunksToCreate.Count > 0 && !isChunkCreating)
-            StartCoroutine("CreateChunks");
+            StartCoroutine(nameof(CreateChunks));
 
         if (Input.GetKeyDown(KeyCode.F3))
             debugScreen.gameObject.SetActive(!debugScreen.gameObject.activeSelf);
@@ -79,6 +79,14 @@ public class World : MonoBehaviour
         int z = Mathf.FloorToInt(pos.z / VoxelData.ChunkWidth);
 
         return new ChunkCoord(x, z);
+    }
+
+    public Chunk GetChunkFromVector3(Vector3 pos)
+    {
+        ChunkCoord coord = GetChunkCoordFromVector3(pos);
+        if (IsChunkInWorld(coord) && chunks[coord.x, coord.z] != null)
+            return chunks[coord.x, coord.z];
+        return null;
     }
 
     void CheckViewDistance()
@@ -181,7 +189,7 @@ public class World : MonoBehaviour
 public class BlockType
 {
     // front back right left top bottom
-    public string name;
+    public string blockName;
     public bool isSolid;
     [Header("Texture values")]
     [SerializeField] ushort frontFaceTexture;

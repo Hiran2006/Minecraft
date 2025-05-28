@@ -1,6 +1,8 @@
 using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using TMPro;
+using UnityEngine.UI;
 
 public class Player : MonoBehaviour
 {
@@ -35,18 +37,26 @@ public class Player : MonoBehaviour
 
     InputActionMap actionMap;
 
+    public TextMeshProUGUI selectedBlockText;
+    public ushort selectedBlockIndex = 1;
     private void OnEnable()
     {
         cam = Camera.main.transform;
         world = FindAnyObjectByType<World>();
 
         actionMap = InputSystem.actions.FindActionMap("Player");
-
+        Cursor.lockState = CursorLockMode.Locked;
     }
 
     private void Update()
     {
+
         GetPlayerInputs();
+        PlaceCursorBlock();
+    }
+
+    private void FixedUpdate()
+    {
         CalculateVelocity();
 
         if (jumpRequest) Jump();
@@ -94,6 +104,32 @@ public class Player : MonoBehaviour
 
         jumpRequest = actionMap.FindAction("Jump").ReadValue<float>() == 1;
         isSprinting = actionMap.FindAction("Sprint").ReadValue<float>() == 1;
+
+        float scroll = actionMap.FindAction("Scroll").ReadValue<float>();
+
+        if(scroll != 0)
+        {
+            if (scroll > 0)
+                selectedBlockIndex++;
+            else
+                selectedBlockIndex--;
+            if(selectedBlockIndex>(byte)world.blockTypes.Length-1)
+                selectedBlockIndex = 1;
+            if(selectedBlockIndex < 1)
+                selectedBlockIndex = (byte)(world.blockTypes.Length - 1);
+
+            selectedBlockText.text = world.blockTypes[selectedBlockIndex].blockName;
+        }
+
+
+        if (hightlightBlock.gameObject.activeSelf)
+        {
+            if (Input.GetMouseButton(0))
+                world.GetChunkFromVector3(hightlightBlock.position).EditVoxel(hightlightBlock.position, 0);
+
+            if (Input.GetMouseButton(1))
+                world.GetChunkFromVector3(hightlightBlock.position).EditVoxel(hightlightBlock.position, selectedBlockIndex);
+        }
     }
 
     void PlaceCursorBlock()
@@ -117,6 +153,8 @@ public class Player : MonoBehaviour
 
             step += checkIncrement; 
         }
+        hightlightBlock.gameObject.SetActive(false);
+        placeBlock.gameObject.SetActive(false);
     }
 
     float CheckDownSpeed(float downSpeed)
