@@ -1,12 +1,32 @@
+using System;
 using UnityEngine;
 
 public class World : MonoBehaviour
 {
     public Material material;
     public BlockType[] blockTypes;
+
+    Chunk[,] chunks = new Chunk[VoxelData.worldSizeInChunks, VoxelData.worldSizeInChunks];
+
     void Start()
     {
-        new Chunk(this);
+        GenerateWorld();
+    }
+
+    private void GenerateWorld()
+    {
+        for (int x = 0; x < VoxelData.worldSizeInChunks; x++)
+        {
+            for (int z = 0; z < VoxelData.worldSizeInChunks; z++)
+            {
+                CreateChunk(x, z);
+            }
+        }
+    }
+
+    private void CreateChunk(int x, int z)
+    {
+        chunks[x, z] = new Chunk(new ChunkCoord(x, z), this);
     }
 }
 

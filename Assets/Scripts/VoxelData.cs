@@ -6,6 +6,8 @@ public static class VoxelData
     public readonly static int chunkWidth = 5;
     public readonly static int chunkHeight = 5;
 
+    public readonly static int worldSizeInChunks = 10;
+
     public readonly static int textureSizeInBlocks = 4;
     public static float normalizeTextureSize
     {
@@ -31,5 +33,14 @@ public static class VoxelData
         {4,6,0,2 },//Left
         {2,6,3,7},//Top
         {4,0,5,1},//Bottom
+    };
+    public readonly static Vector3[] faceChecks = new Vector3[]
+    {
+        new Vector3(0,0,1),
+        new Vector3(0,0,-1),
+        new Vector3(1,0,0),
+        new Vector3(-1,0,0),
+        new Vector3(0,1,0),
+        new Vector3(0,-1,0),
     };
 }
