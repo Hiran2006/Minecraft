@@ -3,6 +3,15 @@ using UnityEngine;
 
 public static class VoxelData
 {
+    public readonly static int chunkWidth = 5;
+    public readonly static int chunkHeight = 5;
+
+    public readonly static int textureSizeInBlocks = 4;
+    public static float normalizeTextureSize
+    {
+        get { return 1f / textureSizeInBlocks; }
+    }
+
     public readonly static Vector3[] voxelVerts = new Vector3[]
     {
         new(0,0,0),//0
