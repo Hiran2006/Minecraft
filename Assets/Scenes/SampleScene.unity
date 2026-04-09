@@ -119,6 +119,37 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1 &629103272
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 629103273}
+  m_Layer: 0
+  m_Name: Player
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &629103273
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 629103272}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 42.22157, y: -0, z: 43.10564}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &705507993
 GameObject:
   m_ObjectHideFlags: 0
@@ -337,7 +368,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c3dd6b56fac9e064dbbd86f8a4872ece, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::World
+  player: {fileID: 629103273}
   material: {fileID: 2100000, guid: e785cb1f1c8073b45b6152adcac9a054, type: 2}
+  biome: {fileID: 11400000, guid: 81f97a304195a4a469d60717da8bdf70, type: 2}
   blockTypes:
   - blockName: Air
     isSolid: 0
@@ -355,6 +388,30 @@ MonoBehaviour:
     leftFace: 9
     topFace: 9
     bottomFace: 9
+  - blockName: Dirt
+    isSolid: 1
+    frontFace: 1
+    backFace: 1
+    rightFace: 1
+    leftFace: 1
+    topFace: 1
+    bottomFace: 1
+  - blockName: Sand
+    isSolid: 1
+    frontFace: 10
+    backFace: 10
+    rightFace: 10
+    leftFace: 10
+    topFace: 10
+    bottomFace: 10
+  - blockName: Grass
+    isSolid: 1
+    frontFace: 2
+    backFace: 2
+    rightFace: 2
+    leftFace: 2
+    topFace: 7
+    bottomFace: 1
 --- !u!4 &1201575975
 Transform:
   m_ObjectHideFlags: 0
@@ -377,3 +434,4 @@ SceneRoots:
   - {fileID: 963194228}
   - {fileID: 705507995}
   - {fileID: 1201575975}
+  - {fileID: 629103273}

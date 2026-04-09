@@ -5,6 +5,8 @@ public class Chunk
 {
     Mesh mesh;
     World world;
+    GameObject chunkObj;
+    public ChunkCoord coord;
 
     List<Vector3> vertices = new List<Vector3>();
     List<int> triangles = new List<int>();
@@ -16,8 +18,9 @@ public class Chunk
     public Chunk(ChunkCoord coord, World world)
     {
         this.world = world;
+        this.coord = coord;
 
-        GameObject chunkObj = new GameObject($"Chunk {coord.x}, {coord.z}");
+        chunkObj = new GameObject($"Chunk {coord.x}, {coord.z}");
         chunkObj.transform.SetParent(world.transform);
         chunkObj.transform.position = new Vector3(coord.x * VoxelData.chunkWidth, 0, coord.z * VoxelData.chunkWidth);
 
@@ -35,6 +38,12 @@ public class Chunk
         mesh.RecalculateNormals();
     }
 
+    public bool isActive
+    {
+        get { return chunkObj.activeSelf; }
+        set { chunkObj.SetActive(value); }
+    }
+
     void InitBlocks()
     {
 
@@ -44,10 +53,15 @@ public class Chunk
             {
                 for (int z = 0; z < VoxelData.chunkWidth; z++)
                 {
-                    blocks[x, y, z] = 1;
+                    blocks[x, y, z] = world.GetBlockMap(chunkPos + new Vector3(x, y, z));
                 }
             }
         }
+    }
+
+    Vector3 chunkPos
+    {
+        get { return new Vector3(coord.x * VoxelData.chunkWidth, 0, coord.z * VoxelData.chunkWidth); }
     }
 
     private void CreateVoxel(Vector3 pos)
@@ -113,7 +127,7 @@ public class Chunk
         {
             return world.blockTypes[blocks[x, y, z]].isSolid;
         }
-        return false;
+        return world.blockTypes[world.GetBlockMap(chunkPos + pos)].isSolid;
     }
 }
 

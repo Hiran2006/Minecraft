@@ -3,10 +3,11 @@ using UnityEngine;
 
 public static class VoxelData
 {
-    public readonly static int chunkWidth = 5;
-    public readonly static int chunkHeight = 5;
+    public readonly static int chunkWidth = 10;
+    public readonly static int chunkHeight = 128;
 
-    public readonly static int worldSizeInChunks = 10;
+    public readonly static int worldSizeInChunks = 25;
+    public readonly static int renderDistanceInChunks = 2;
 
     public readonly static int textureSizeInBlocks = 4;
     public static float normalizeTextureSize
@@ -36,11 +37,11 @@ public static class VoxelData
     };
     public readonly static Vector3[] faceChecks = new Vector3[]
     {
-        new Vector3(0,0,1),
-        new Vector3(0,0,-1),
-        new Vector3(1,0,0),
-        new Vector3(-1,0,0),
-        new Vector3(0,1,0),
-        new Vector3(0,-1,0),
+        new(0,0,1),
+        new(0,0,-1),
+        new(1,0,0),
+        new(-1,0,0),
+        new(0,1,0),
+        new(0,-1,0),
     };
 }
