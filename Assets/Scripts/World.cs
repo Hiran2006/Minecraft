@@ -87,6 +87,17 @@ public class World : MonoBehaviour
         activeChunk.Add(chunks[x, z]);
     }
 
+    public bool IsSolidBlock(Vector3 pos)
+    {
+        int xCheck = Mathf.FloorToInt(pos.x);
+        int yCheck = Mathf.FloorToInt(pos.y);
+        int zCheck = Mathf.FloorToInt(pos.z);
+        ChunkCoord coord = GetChunkCoordFromPos(new Vector3(xCheck, yCheck, zCheck));
+        int xblock = xCheck - coord.x * VoxelData.chunkWidth;
+        int zblock = zCheck - coord.z * VoxelData.chunkWidth;
+        return blockTypes[chunks[coord.x, coord.z].blocks[xblock, yCheck, zblock]].isSolid;
+    }
+
     public byte GetBlockMap(Vector3 pos)
     {
         if (pos.y < 0 || pos.y >= VoxelData.chunkHeight)
