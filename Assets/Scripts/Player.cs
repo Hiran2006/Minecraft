@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 public class Player : MonoBehaviour
@@ -28,6 +29,9 @@ public class Player : MonoBehaviour
 
     Camera cam;
 
+    public Transform destroyBlock;
+    public Transform placeBlock;
+
     void Start()
     {
         cam = Camera.main;
@@ -37,6 +41,124 @@ public class Player : MonoBehaviour
     private void Update()
     {
         GetInputs();
+        ApplyPhysics();
+        UpdateHighlightBlock();
+    }
+    struct RaycastHitVoxel
+    {
+        public Vector3 point;       // exact intersection point
+        public Vector3Int block;    // block hit
+        public Vector3 normal;      // face normal
+    }
+
+    RaycastHitVoxel? RaycastVoxel(
+        Vector3 start,
+        Vector3 direction,
+        float maxDistance,
+        Func<Vector3Int, bool> isTransparent
+    )
+    {
+        direction = direction.normalized;
+
+        Vector3Int current = Vector3Int.FloorToInt(start);
+
+        Vector3Int step = new Vector3Int(
+            direction.x > 0 ? 1 : (direction.x < 0 ? -1 : 0),
+            direction.y > 0 ? 1 : (direction.y < 0 ? -1 : 0),
+            direction.z > 0 ? 1 : (direction.z < 0 ? -1 : 0)
+        );
+
+        Vector3 nextBoundary = new Vector3(
+            step.x > 0 ? current.x + 1 : current.x,
+            step.y > 0 ? current.y + 1 : current.y,
+            step.z > 0 ? current.z + 1 : current.z
+        );
+
+        Vector3 tMax = new Vector3(
+            direction.x != 0 ? (nextBoundary.x - start.x) / direction.x : float.MaxValue,
+            direction.y != 0 ? (nextBoundary.y - start.y) / direction.y : float.MaxValue,
+            direction.z != 0 ? (nextBoundary.z - start.z) / direction.z : float.MaxValue
+        );
+
+        Vector3 tDelta = new Vector3(
+            direction.x != 0 ? Mathf.Abs(1f / direction.x) : float.MaxValue,
+            direction.y != 0 ? Mathf.Abs(1f / direction.y) : float.MaxValue,
+            direction.z != 0 ? Mathf.Abs(1f / direction.z) : float.MaxValue
+        );
+
+        float distance = 0f;
+        Vector3 normal = Vector3.zero;
+
+        while (distance <= maxDistance)
+        {
+            // 🔴 If current block is solid → hit
+            if (!isTransparent(current))
+            {
+                return new RaycastHitVoxel
+                {
+                    point = start + direction * distance,
+                    block = current,
+                    normal = normal
+                };
+            }
+
+            // Move to next voxel boundary
+            if (tMax.x < tMax.y && tMax.x < tMax.z)
+            {
+                current.x += step.x;
+                distance = tMax.x;
+                tMax.x += tDelta.x;
+                normal = new Vector3(-step.x, 0, 0);
+            }
+            else if (tMax.y < tMax.z)
+            {
+                current.y += step.y;
+                distance = tMax.y;
+                tMax.y += tDelta.y;
+                normal = new Vector3(0, -step.y, 0);
+            }
+            else
+            {
+                current.z += step.z;
+                distance = tMax.z;
+                tMax.z += tDelta.z;
+                normal = new Vector3(0, 0, -step.z);
+            }
+
+            // 🛑 Stop if we exceeded max distance
+            if (distance > maxDistance)
+                break;
+        }
+
+        return null; // nothing hit within range
+    }
+
+    private void UpdateHighlightBlock()
+    {
+        RaycastHitVoxel? hit = RaycastVoxel(
+            cam.transform.position,
+            cam.transform.forward,
+            5f,
+            pos => !world.IsSolidBlock(pos)
+        );
+        if (hit != null)
+        {
+
+            destroyBlock.gameObject.SetActive(true);
+            placeBlock.gameObject.SetActive(true);
+            destroyBlock.position = hit.Value.block;
+            placeBlock.position = hit.Value.block + hit.Value.normal;
+        }
+        else
+        {
+            destroyBlock.gameObject.SetActive(false);
+            placeBlock.gameObject.SetActive(false);
+        }
+    }
+
+    void ApplyPhysics()
+    {
+
         float speed = isSprintRequest ? sprintSpeed : walkSpeed;
         velocity = Time.deltaTime * speed * (transform.forward * verticalInput + transform.right * horizontalInput);
         verticalMomentum += gravity * Time.deltaTime;
@@ -65,7 +187,6 @@ public class Player : MonoBehaviour
 
         transform.Translate(velocity, Space.World);
     }
-
     float DownSpeed(float speed)
     {
         if (world.IsSolidBlock(transform.position + new Vector3(playerWidth, speed, playerWidth)) ||
