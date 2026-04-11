@@ -15,6 +15,8 @@ public class Player : MonoBehaviour
     float mouseXInput;
     float mouseYInput;
 
+    float momentum;
+
     bool isJumpRequest;
     bool isSprintRequest;
     bool isGrounded;
@@ -39,8 +41,22 @@ public class Player : MonoBehaviour
         velocity = Time.deltaTime * walkSpeed * (transform.forward * verticalInput + transform.right * horizontalInput);
         velocity += Vector3.up * gravity * Time.deltaTime;
 
-        velocity.y = DownSpeed(velocity.y);
-        velocity.y = UpSpeed(velocity.y);
+        if (isJumpRequest)
+        {
+            velocity.y = jumpForce;
+            isJumpRequest = false;
+            isGrounded = false;
+        }
+        if (velocity.y < 0)
+            velocity.y = DownSpeed(velocity.y);
+        if (velocity.y > 0)
+            velocity.y = UpSpeed(velocity.y);
+
+        if (velocity.z > 0 && front || velocity.z < 0 && back) ;
+        else velocity.z = 0;
+
+        if (velocity.x > 0 && right || velocity.x < 0 && left) ;
+        else velocity.x = 0;
 
         transform.Rotate(Vector3.up * mouseXInput);
         cam.transform.Rotate(Vector3.left * mouseYInput);
@@ -79,6 +95,51 @@ public class Player : MonoBehaviour
             return speed;
         }
     }
+
+    bool front
+    {
+        get
+        {
+            if (!world.IsSolidBlock(transform.position + playerWidth * Vector3.forward) &&
+                !world.IsSolidBlock(transform.position + playerWidth * Vector3.forward + Vector3.up)
+            ) return true;
+            return false;
+        }
+    }
+
+    bool back
+    {
+        get
+        {
+            if (!world.IsSolidBlock(transform.position - playerWidth * Vector3.forward) &&
+                !world.IsSolidBlock(transform.position - playerWidth * Vector3.forward + Vector3.up)
+            ) return true;
+            return false;
+        }
+    }
+
+    bool right
+    {
+        get
+        {
+            if (!world.IsSolidBlock(transform.position + playerWidth * Vector3.right) &&
+                !world.IsSolidBlock(transform.position + playerWidth * Vector3.right + Vector3.up)
+            ) return true;
+            return false;
+        }
+    }
+
+    bool left
+    {
+        get
+        {
+            if (!world.IsSolidBlock(transform.position - playerWidth * Vector3.right) &&
+                !world.IsSolidBlock(transform.position - playerWidth * Vector3.right + Vector3.up)
+            ) return true;
+            return false;
+        }
+    }
+
 
     void GetInputs()
     {
