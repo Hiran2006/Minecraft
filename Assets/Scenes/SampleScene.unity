@@ -167,7 +167,7 @@ MonoBehaviour:
   walkSpeed: 5
   gravity: -9.81
   sprintSpeed: 10
-  jumpForce: 5
+  jumpForce: 7
   playerWidth: 0.5
 --- !u!1 &705507993
 GameObject:

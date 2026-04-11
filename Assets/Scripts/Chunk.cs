@@ -24,11 +24,16 @@ public class Chunk
         chunkObj.transform.SetParent(world.transform);
         chunkObj.transform.position = new Vector3(coord.x * VoxelData.chunkWidth, 0, coord.z * VoxelData.chunkWidth);
 
+
+        InitBlocks();
+
+    }
+
+    public void Init()
+    {
         mesh = new Mesh();
         chunkObj.AddComponent<MeshFilter>().mesh = mesh;
         chunkObj.AddComponent<MeshRenderer>().material = world.material;
-
-        InitBlocks();
         CreateBlocks();
 
         mesh.Clear();
@@ -37,6 +42,8 @@ public class Chunk
         mesh.uv = uvs.ToArray();
         mesh.RecalculateNormals();
     }
+
+
 
     public bool isActive
     {
@@ -127,7 +134,7 @@ public class Chunk
         {
             return world.blockTypes[blocks[x, y, z]].isSolid;
         }
-        return world.blockTypes[world.GetBlockMap(chunkPos + pos)].isSolid;
+        return world.CheckBlock(chunkPos + new Vector3(x, y, z));
     }
 }
 
