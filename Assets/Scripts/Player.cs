@@ -6,7 +6,7 @@ public class Player : MonoBehaviour
     [SerializeField] float gravity = -9.81f;
 
     [SerializeField] float sprintSpeed = 10f;
-    [SerializeField] float jumpForce = 5f;
+    [SerializeField] float jumpForce = 7f;
 
     [SerializeField] float playerWidth = .5f;
 
@@ -15,7 +15,7 @@ public class Player : MonoBehaviour
     float mouseXInput;
     float mouseYInput;
 
-    float momentum;
+    float verticalMomentum = 0;
 
     bool isJumpRequest;
     bool isSprintRequest;
@@ -37,16 +37,18 @@ public class Player : MonoBehaviour
     private void Update()
     {
         GetInputs();
-
-        velocity = Time.deltaTime * walkSpeed * (transform.forward * verticalInput + transform.right * horizontalInput);
-        velocity += Vector3.up * gravity * Time.deltaTime;
+        float speed = isSprintRequest ? sprintSpeed : walkSpeed;
+        velocity = Time.deltaTime * speed * (transform.forward * verticalInput + transform.right * horizontalInput);
+        verticalMomentum += gravity * Time.deltaTime;
 
         if (isJumpRequest)
         {
-            velocity.y = jumpForce;
+            verticalMomentum = jumpForce;
             isJumpRequest = false;
             isGrounded = false;
         }
+        velocity.y += verticalMomentum * Time.deltaTime;
+        verticalMomentum -= verticalMomentum * Time.deltaTime;
         if (velocity.y < 0)
             velocity.y = DownSpeed(velocity.y);
         if (velocity.y > 0)
@@ -66,13 +68,14 @@ public class Player : MonoBehaviour
 
     float DownSpeed(float speed)
     {
-        if (world.IsSolidBlock(transform.position + new Vector3(playerWidth, speed + 2f, playerWidth)) ||
-            world.IsSolidBlock(transform.position + new Vector3(-playerWidth, speed + 2f, playerWidth)) ||
-            world.IsSolidBlock(transform.position + new Vector3(playerWidth, speed + 2f, -playerWidth)) ||
-            world.IsSolidBlock(transform.position + new Vector3(-playerWidth, speed + 2f, -playerWidth)))
+        if (world.IsSolidBlock(transform.position + new Vector3(playerWidth, speed, playerWidth)) ||
+            world.IsSolidBlock(transform.position + new Vector3(-playerWidth, speed, playerWidth)) ||
+            world.IsSolidBlock(transform.position + new Vector3(playerWidth, speed, -playerWidth)) ||
+            world.IsSolidBlock(transform.position + new Vector3(-playerWidth, speed, -playerWidth)))
         {
+            verticalMomentum = 0;
             isGrounded = true;
-            return 0;
+            return transform.position.y-(int)transform.position.y;
         }
         else
         {
@@ -83,12 +86,15 @@ public class Player : MonoBehaviour
 
     float UpSpeed(float speed)
     {
-        if (world.IsSolidBlock(transform.position + new Vector3(playerWidth, speed, playerWidth)) ||
-            world.IsSolidBlock(transform.position + new Vector3(-playerWidth, speed, playerWidth)) ||
-            world.IsSolidBlock(transform.position + new Vector3(playerWidth, speed, -playerWidth)) ||
-            world.IsSolidBlock(transform.position + new Vector3(-playerWidth, speed, -playerWidth)))
+        if (world.IsSolidBlock(transform.position + new Vector3(playerWidth, speed  +2f, playerWidth)) ||
+            world.IsSolidBlock(transform.position + new Vector3(-playerWidth, speed+2f, playerWidth)) ||
+            world.IsSolidBlock(transform.position + new Vector3(playerWidth, speed+2f, -playerWidth)) ||
+            world.IsSolidBlock(transform.position + new Vector3(-playerWidth, speed+2f, -playerWidth)))
         {
-            return 0;
+
+            verticalMomentum = 0;
+
+            return transform.position.y - (int)transform.position.y;
         }
         else
         {
