@@ -101,6 +101,32 @@ public class World : MonoBehaviour
         yield return null;
     }
 
+    public void EditChunk(Vector3 pos, byte newBlock)
+    {
+        if (!IsBlockInWorld(pos)) return;
+        ChunkCoord coord = GetChunkCoordFromPos(pos);
+        int xblock = (int)(pos.x - coord.x * VoxelData.chunkWidth);
+        int zblock = (int)(pos.z - coord.z * VoxelData.chunkWidth);
+        chunks[coord.x, coord.z].blocks[xblock, (int)pos.y, zblock] = newBlock;
+        chunks[coord.x, coord.z].UpdateChunk();
+        if (xblock == 0)
+        {
+            chunks[coord.x - 1, coord.z].UpdateChunk();
+        }
+        else if (xblock == VoxelData.chunkWidth - 1)
+        {
+            chunks[coord.x + 1, coord.z].UpdateChunk();
+        }
+        if (zblock == 0)
+        {
+            chunks[coord.x, coord.z - 1].UpdateChunk();
+        }
+        else if (zblock == VoxelData.chunkWidth - 1)
+        {
+            chunks[coord.x, coord.z + 1].UpdateChunk();
+        }
+    }
+
     private void CreateChunk(int x, int z)
     {
         chunks[x, z] = new Chunk(new ChunkCoord(x, z), this);

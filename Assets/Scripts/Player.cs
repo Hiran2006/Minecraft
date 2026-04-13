@@ -36,6 +36,7 @@ public class Player : MonoBehaviour
     {
         cam = Camera.main;
         world = FindAnyObjectByType<World>();
+        Cursor.lockState = CursorLockMode.Locked;
     }
 
     private void Update()
@@ -176,11 +177,11 @@ public class Player : MonoBehaviour
         if (velocity.y > 0)
             velocity.y = UpSpeed(velocity.y);
 
-        if (velocity.z > 0 && front || velocity.z < 0 && back) ;
-        else velocity.z = 0;
+        if (!(velocity.z > 0 && front || velocity.z < 0 && back))
+            velocity.z = 0;
 
-        if (velocity.x > 0 && right || velocity.x < 0 && left) ;
-        else velocity.x = 0;
+        if (!(velocity.x > 0 && right || velocity.x < 0 && left))
+            velocity.x = 0;
 
         transform.Rotate(Vector3.up * mouseXInput);
         cam.transform.Rotate(Vector3.left * mouseYInput);
@@ -196,7 +197,7 @@ public class Player : MonoBehaviour
         {
             verticalMomentum = 0;
             isGrounded = true;
-            return transform.position.y-(int)transform.position.y;
+            return transform.position.y - (int)transform.position.y;
         }
         else
         {
@@ -207,10 +208,10 @@ public class Player : MonoBehaviour
 
     float UpSpeed(float speed)
     {
-        if (world.IsSolidBlock(transform.position + new Vector3(playerWidth, speed  +2f, playerWidth)) ||
-            world.IsSolidBlock(transform.position + new Vector3(-playerWidth, speed+2f, playerWidth)) ||
-            world.IsSolidBlock(transform.position + new Vector3(playerWidth, speed+2f, -playerWidth)) ||
-            world.IsSolidBlock(transform.position + new Vector3(-playerWidth, speed+2f, -playerWidth)))
+        if (world.IsSolidBlock(transform.position + new Vector3(playerWidth, speed + 2f, playerWidth)) ||
+            world.IsSolidBlock(transform.position + new Vector3(-playerWidth, speed + 2f, playerWidth)) ||
+            world.IsSolidBlock(transform.position + new Vector3(playerWidth, speed + 2f, -playerWidth)) ||
+            world.IsSolidBlock(transform.position + new Vector3(-playerWidth, speed + 2f, -playerWidth)))
         {
 
             verticalMomentum = 0;
@@ -286,6 +287,17 @@ public class Player : MonoBehaviour
         if (isGrounded && Input.GetButtonDown("Jump"))
         {
             isJumpRequest = true;
+        }
+        if(destroyBlock.gameObject.activeSelf)
+        {
+            if (Input.GetMouseButtonDown(0))
+            {
+                world.EditChunk(destroyBlock.position, 0);
+            }
+            //else if (Input.GetMouseButtonDown(1))
+            //{
+            //    world.EditChunk(placeBlock.position);
+            //}
         }
     }
 }

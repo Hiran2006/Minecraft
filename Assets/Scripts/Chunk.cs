@@ -34,8 +34,13 @@ public class Chunk
         mesh = new Mesh();
         chunkObj.AddComponent<MeshFilter>().mesh = mesh;
         chunkObj.AddComponent<MeshRenderer>().material = world.material;
-        CreateBlocks();
+        UpdateChunk();
 
+
+    }
+
+    void UpdateMesh()
+    {
         mesh.Clear();
         mesh.vertices = vertices.ToArray();
         mesh.triangles = triangles.ToArray();
@@ -43,6 +48,13 @@ public class Chunk
         mesh.RecalculateNormals();
     }
 
+    void ClearMeshData()
+    {
+        vertIndex = 0;
+        vertices.Clear();
+        triangles.Clear();
+        uvs.Clear();
+    }
 
 
     public bool isActive
@@ -109,8 +121,9 @@ public class Chunk
         uvs.Add(new Vector2(x + VoxelData.normalizeTextureSize, y));
         uvs.Add(new Vector2(x + VoxelData.normalizeTextureSize, y + VoxelData.normalizeTextureSize));
     }
-    private void CreateBlocks()
+    public void UpdateChunk()
     {
+        ClearMeshData();
         for (int x = 0; x < VoxelData.chunkWidth; x++)
         {
             for (int y = 0; y < VoxelData.chunkHeight; y++)
@@ -123,8 +136,8 @@ public class Chunk
                 }
             }
         }
+        UpdateMesh();
     }
-
     private bool IsVisible(Vector3 pos)
     {
         int x = (int)pos.x;
