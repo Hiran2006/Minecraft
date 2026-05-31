@@ -1,6 +1,7 @@
 using System;
 using UnityEngine;
 
+[RequireComponent(typeof(ToolBar))]
 public class Player : MonoBehaviour
 {
     [SerializeField] float walkSpeed = 5f;
@@ -23,6 +24,7 @@ public class Player : MonoBehaviour
     bool isGrounded;
 
     World world;
+    ToolBar toolBar;
 
 
     Vector3 velocity;
@@ -36,6 +38,7 @@ public class Player : MonoBehaviour
     {
         cam = Camera.main;
         world = FindAnyObjectByType<World>();
+        toolBar = GetComponent<ToolBar>();
         Cursor.lockState = CursorLockMode.Locked;
     }
 
@@ -294,10 +297,10 @@ public class Player : MonoBehaviour
             {
                 world.EditChunk(destroyBlock.position, 0);
             }
-            //else if (Input.GetMouseButtonDown(1))
-            //{
-            //    world.EditChunk(placeBlock.position);
-            //}
+            else if (Input.GetMouseButtonDown(1))
+            {
+                world.EditChunk(placeBlock.position, (byte)toolBar.selectedBlockID);
+            }
         }
     }
 }
