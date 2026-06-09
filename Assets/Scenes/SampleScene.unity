@@ -566,14 +566,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0, g: 1, b: 0.05704671, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 9ff9231da1512834d9f20473eb8ccf92, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 4ae780f8134cdc14aa2c61d9b476135e, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -660,7 +660,7 @@ MonoBehaviour:
   - blockID: 1
   - blockID: 2
   - blockID: 3
-  - blockID: 4
+  - blockID: 5
   - blockID: 1
   - blockID: 2
   - blockID: 3
@@ -1006,6 +1006,7 @@ MonoBehaviour:
   blockTypes:
   - blockName: Air
     isSolid: 0
+    isTransparent: 1
     icon: {fileID: 0}
     frontFace: 0
     backFace: 0
@@ -1015,6 +1016,7 @@ MonoBehaviour:
     bottomFace: 0
   - blockName: BedRock
     isSolid: 1
+    isTransparent: 0
     icon: {fileID: -833256833, guid: 3131bca951d7d624481d54af53cff477, type: 3}
     frontFace: 9
     backFace: 9
@@ -1024,6 +1026,7 @@ MonoBehaviour:
     bottomFace: 9
   - blockName: Dirt
     isSolid: 1
+    isTransparent: 0
     icon: {fileID: -331013906, guid: 3131bca951d7d624481d54af53cff477, type: 3}
     frontFace: 1
     backFace: 1
@@ -1033,6 +1036,7 @@ MonoBehaviour:
     bottomFace: 1
   - blockName: Sand
     isSolid: 1
+    isTransparent: 0
     icon: {fileID: 458045109, guid: 3131bca951d7d624481d54af53cff477, type: 3}
     frontFace: 10
     backFace: 10
@@ -1042,6 +1046,17 @@ MonoBehaviour:
     bottomFace: 10
   - blockName: Grass
     isSolid: 1
+    isTransparent: 0
+    icon: {fileID: -1169666430, guid: 3131bca951d7d624481d54af53cff477, type: 3}
+    frontFace: 2
+    backFace: 2
+    rightFace: 2
+    leftFace: 2
+    topFace: 7
+    bottomFace: 1
+  - blockName: Glass
+    isSolid: 1
+    isTransparent: 0
     icon: {fileID: -1169666430, guid: 3131bca951d7d624481d54af53cff477, type: 3}
     frontFace: 2
     backFace: 2

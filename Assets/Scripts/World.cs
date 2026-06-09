@@ -74,14 +74,17 @@ public class World : MonoBehaviour
         {
             for (int z = playerLastChunkCoord.z - VoxelData.renderDistanceInChunks; z <= playerLastChunkCoord.z + VoxelData.renderDistanceInChunks; z++)
             {
-                if (chunks[x, z] == null)
+                if (x >= 0 && x < VoxelData.worldSizeInChunks && z >= 0 && z < VoxelData.worldSizeInChunks)
                 {
-                    CreateChunk(x, z);
-                }
-                else if (!chunks[x, z].isActive)
-                {
-                    chunks[x, z].isActive = true;
-                    activeChunk.Add(chunks[x, z]);
+                    if (chunks[x, z] == null)
+                    {
+                        CreateChunk(x, z);
+                    }
+                    else if (!chunks[x, z].isActive)
+                    {
+                        chunks[x, z].isActive = true;
+                        activeChunk.Add(chunks[x, z]);
+                    }
                 }
             }
         }
@@ -136,6 +139,8 @@ public class World : MonoBehaviour
 
     public bool IsSolidBlock(Vector3 pos)
     {
+
+        if (!IsBlockInWorld(pos)) return false;
         int xCheck = Mathf.FloorToInt(pos.x);
         int yCheck = Mathf.FloorToInt(pos.y);
         int zCheck = Mathf.FloorToInt(pos.z);
@@ -153,14 +158,15 @@ public class World : MonoBehaviour
             return false;
     }
 
-    public bool CheckBlock(Vector3 pos)
+    public bool IsTransparent(Vector3 pos)
     {
-        if (!IsBlockInWorld(pos)) return false;
+        if (!IsBlockInWorld(pos)) return true;
         ChunkCoord coord = GetChunkCoordFromPos(pos);
         int xblock = (int)(pos.x - coord.x * VoxelData.chunkWidth);
         int zblock = (int)(pos.z - coord.z * VoxelData.chunkWidth);
-        if (chunks[coord.x, coord.z] == null) return blockTypes[GetBlockMap(pos)].isSolid;
-        return blockTypes[chunks[coord.x, coord.z].blocks[xblock, (int)pos.y, zblock]].isSolid;
+        if (chunks[coord.x, coord.z] == null) return blockTypes[GetBlockMap(pos)].isTransparent;
+        return blockTypes[chunks[coord.x, coord.z].blocks[xblock, (int)pos.y, zblock]].isTransparent;
+        
     }
     public byte GetBlockMap(Vector3 pos)
     {
@@ -169,16 +175,13 @@ public class World : MonoBehaviour
         if (pos.y == 0)
             return 1;
 
-        if (!Noise.Get3DPerlinBool(pos, 0.1f, biome.terrianScale, .6f))
-        {
-            int terrianHeight = (int)(Noise.Get2DPerlin(new Vector2(pos.x, pos.z), 0.1f, biome.terrianScale) * biome.terrianHeight) + biome.solidGroundHeight;
-            if (terrianHeight == pos.y)
-                return 4;
-            if (terrianHeight > pos.y)
-                return 2;
-        }
+        int terrianHeight = (int)(Noise.Get2DPerlin(new Vector2(pos.x, pos.z), 0.1f, biome.terrianScale) * biome.terrianHeight) + biome.solidGroundHeight;
+        if (terrianHeight == pos.y)
+            return 4;
+        if(pos.y<terrianHeight)
+            return 2;
         return 0;
-    }
+    } 
 }
 
 [System.Serializable]
@@ -186,6 +189,7 @@ public class BlockType
 {
     public string blockName;
     public bool isSolid;
+    public bool isTransparent;
     public Sprite icon;
     [Header("Texture Indices")]
     public byte frontFace;

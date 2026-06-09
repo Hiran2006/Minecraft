@@ -87,7 +87,7 @@ public class Chunk
     {
         for (int f = 0; f < 6; f++)
         {
-            if (!IsVisible(pos + VoxelData.faceChecks[f]))
+            if (IsTransparent(pos + VoxelData.faceChecks[f]))
             {
                 for (int i = 0; i < 4; i++)
                 {
@@ -131,23 +131,23 @@ public class Chunk
                 for (int z = 0; z < VoxelData.chunkWidth; z++)
                 {
                     Vector3 pos = new Vector3(x, y, z);
-                    if (IsVisible(pos))
+                    if (world.blockTypes[blocks[x,y,z]].isSolid)
                         CreateVoxel(pos);
                 }
             }
         }
         UpdateMesh();
     }
-    private bool IsVisible(Vector3 pos)
+    private bool IsTransparent(Vector3 pos)
     {
         int x = (int)pos.x;
         int y = (int)pos.y;
         int z = (int)pos.z;
         if (x >= 0 && x < VoxelData.chunkWidth && y >= 0 && y < VoxelData.chunkHeight && z >= 0 && z < VoxelData.chunkWidth)
         {
-            return world.blockTypes[blocks[x, y, z]].isSolid;
+            return world.blockTypes[blocks[x, y, z]].isTransparent;
         }
-        return world.CheckBlock(chunkPos + new Vector3(x, y, z));
+        return world.IsTransparent(chunkPos + new Vector3(x, y, z));
     }
 }
 
