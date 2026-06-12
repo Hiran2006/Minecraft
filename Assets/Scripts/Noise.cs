@@ -58,7 +58,7 @@ public class Noise
         int X = (int)Math.Floor(x) & 255;
         int Y = (int)Math.Floor(y) & 255;
         x -= Math.Floor(x); y -= Math.Floor(y);
-        double u = Fade(x); v = Fade(y);
+        double u = Fade(x), v = Fade(y);
         int aa = _p[_p[X] + Y], ab = _p[_p[X] + Y + 1], ba = _p[_p[X + 1] + Y], bb = _p[_p[X + 1] + Y + 1];
         return Lerp(v, Lerp(u, Grad2d(aa, x, y), Grad2d(ba, x - 1, y)),
                        Lerp(u, Grad2d(ab, x, y - 1), Grad2d(bb, x - 1, y - 1)));

@@ -15,4 +15,4 @@ MonoBehaviour:
   biomeName: Normal
   solidGroundHeight: 42
   terrianHeight: 42
-  terrianScale: 0.25
+  terrianScale: 0.01

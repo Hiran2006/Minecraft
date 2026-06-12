@@ -7,6 +7,7 @@ public class World : MonoBehaviour
 {
     public Transform player;
     public Material material;
+    public int seed;
     public BiomeAttribute biome;
     public BlockType[] blockTypes;
 
@@ -19,8 +20,11 @@ public class World : MonoBehaviour
 
     bool isCreating = false;
 
+    Noise noise;
+
     void Start()
     {
+        noise = new Noise(seed);
         GenerateWorld();
     }
 
@@ -175,7 +179,7 @@ public class World : MonoBehaviour
         if (pos.y == 0)
             return 1;
 
-        int terrianHeight = (int)(Noise.Get2DPerlin(new Vector2(pos.x, pos.z), 0.1f, biome.terrianScale) * biome.terrianHeight) + biome.solidGroundHeight;
+        int terrianHeight = (int)(noise.Noise2d(pos.x, pos.z, scale:biome.terrianScale,octaves:3) * biome.terrianHeight) + biome.minHeight;
         if (terrianHeight == pos.y)
             return 4;
         if(pos.y<terrianHeight)
